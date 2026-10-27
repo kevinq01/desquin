@@ -5,7 +5,6 @@ excerpt: "Plataforma de comercio electrónico adaptable para pequeños y mediano
 status: "disponible"
 statusLabel: "Disponible para la venta"
 tech: ["HTML5", "CSS3", "JavaScript", "PHP", "Laravel", "MySQL", "Bootstrap", "MercadoPago"]
-video: "https://player.vimeo.com/video/1132378798?background=1&autoplay=1&muted=1&loop=1"
 liveUrl: "https://emprenline.desquin.com/"
 flow: ["Catálogo", "Cliente navega", "Carrito", "Checkout", "Pago", "Pedido"]
 whatsappMessage: "Hola, me interesa el proyecto EmprenLine"

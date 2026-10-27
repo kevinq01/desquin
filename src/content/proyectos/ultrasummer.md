@@ -5,7 +5,6 @@ excerpt: "Página web oficial de la agencia de viajes UltraSummer, diseñada par
 status: "en-operacion"
 statusLabel: "En operación"
 tech: ["WordPress", "PHP", "JavaScript", "CSS3", "Bootstrap", "WooCommerce", "Elementor"]
-video: "https://player.vimeo.com/video/1132375947?background=1&autoplay=1&muted=1&loop=1"
 liveUrl: "https://ultrasummer.com.co/"
 whatsappMessage: "Hola, quiero más información sobre el sitio de UltraSummer"
 ---

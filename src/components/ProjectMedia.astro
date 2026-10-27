@@ -1,14 +1,17 @@
 ---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
 interface Props {
   name: string;
   statusLabel: string;
-  video?: string;
-  image?: string;
+  image?: ImageMetadata;
   imageAlt?: string;
 }
 
-const { name, statusLabel, video, image, imageAlt } = Astro.props;
+const { name, statusLabel, image, imageAlt } = Astro.props;
 ---
 <span class="status-pill">{statusLabel}</span>
-{video && <iframe src={video} allow="autoplay" loading="lazy" title={name} />}
-{!video && image && <img src={image} alt={imageAlt ?? name} loading="lazy" />}
+{image
+  ? <Image src={image} alt={imageAlt ?? name} widths={[600, 900, 1200, 1600]} sizes="(max-width: 900px) 100vw, 600px" quality={90} loading="lazy" />
+  : <div class="project-placeholder" role="img" aria-label={`Vista previa de ${name} próxima`}><span>{name}</span><em>Vista previa próximamente</em></div>}

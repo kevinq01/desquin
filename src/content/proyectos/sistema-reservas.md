@@ -5,8 +5,6 @@ excerpt: "Software de gestión de reservas para agencias de viajes: cotizaciones
 status: "sistema"
 statusLabel: "Producto de software"
 tech: ["React", "TypeScript", "Laravel", "MySQL", "Bootstrap", "Correos automáticos", "Reportes PDF/Excel"]
-image: "/img/proyectos/sistema-reservas-preview.png"
-imageAlt: "Panel administrativo del sistema de gestión de reservas"
 liveUrl: ""
 ctaLabel: "Ver sitio en vivo"
 flow: ["Reserva", "Confirmación", "Seguimiento", "Recordatorio de pago", "Pago", "Recordatorio de viaje"]

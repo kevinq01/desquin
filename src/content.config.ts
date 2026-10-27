@@ -3,16 +3,14 @@ import { glob } from 'astro/loaders';
 
 const proyectos = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/proyectos' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     name: z.string(),
     order: z.number().default(99),
     excerpt: z.string(),
     status: z.enum(['disponible', 'en-operacion', 'en-desarrollo', 'sistema']),
     statusLabel: z.string(),
     tech: z.array(z.string()),
-    video: z.string().optional(),
-    image: z.string().optional(),
-    imageAlt: z.string().optional(),
+    gallery: z.array(z.object({ src: image(), alt: z.string(), caption: z.string().optional() })).default([]),
     liveUrl: z.string().optional(),
     ctaLabel: z.string().optional(),
     demoLinks: z.array(z.object({ label: z.string(), url: z.string() })).optional(),

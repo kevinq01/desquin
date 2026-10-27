@@ -5,7 +5,6 @@ excerpt: "Plataforma web para gestionar el acceso de terceros a empresas, con va
 status: "sistema"
 statusLabel: "Sistema de control"
 tech: ["React", "Laravel", "MySQL", "Bootstrap", "PHP", "JavaScript", "Correos automáticos", "Inicio de sesión Microsoft 365"]
-video: "https://player.vimeo.com/video/1142280080?background=1&autoplay=1&muted=1&loop=1"
 liveUrl: "https://controlingreso.desquin.com/"
 flow: ["Solicitud", "Correo de notificación", "Validación", "Correo de confirmación", "Acceso registrado"]
 whatsappMessage: "Hola, me interesa el proyecto Control de Ingresos a Terceros"

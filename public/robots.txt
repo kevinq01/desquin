@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://desquin.com/sitemap-index.xml
+Sitemap: https://desquin.vercel.app/sitemap-index.xml

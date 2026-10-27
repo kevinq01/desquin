@@ -37,7 +37,7 @@ Esto genera la carpeta `dist/` con HTML, CSS y JS ya listos — es lo único que
 
 ## Antes de publicar, cambia esto
 
-- **`astro.config.mjs`**: confirma que `site` sea `https://desquin.com` (o el dominio final).
+- **`astro.config.mjs`**: confirma que `site` sea `https://desquin.vercel.app` (o el dominio final).
 - **`src/pages/contacto.astro`**: el formulario usa [Web3Forms](https://web3forms.com/) (gratis, sin backend). Crea una cuenta, copia tu "Access Key" y reemplázala donde dice `TU_ACCESS_KEY_DE_WEB3FORMS`. Si más adelante prefieres tu propio endpoint PHP en Hostinger, solo cambia el `action` del `<form>`.
 - Revisa los textos de servicios y proyectos y ajústalos si algo cambió.
 

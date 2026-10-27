@@ -4,6 +4,7 @@ import TechIcon from "../components/TechIcon.astro";
 import AstronautHero from "../components/AstronautHero.astro";
 import SpaceAccent from "../components/SpaceAccent.astro";
 import ProjectMedia from "../components/ProjectMedia.astro";
+import { projectCover } from "../lib/project-images";
 import { getCollection } from "astro:content";
 
 const proyectos = (await getCollection("proyectos"))
@@ -445,9 +446,7 @@ const faqSchema = {
                                 <ProjectMedia
                                     name={p.data.name}
                                     statusLabel={p.data.statusLabel}
-                                    video={p.data.video}
-                                    image={p.data.image}
-                                    imageAlt={p.data.imageAlt}
+                                    image={projectCover(p.id, p.data.name, p.data.gallery)?.src}
                                 />
                             </div>
                             <div class="project-body">

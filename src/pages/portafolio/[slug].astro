@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TechIcon from '../../components/TechIcon.astro';
-import ProjectMedia from '../../components/ProjectMedia.astro';
+import ProjectGallery from '../../components/ProjectGallery.astro';
 import FlowDiagram from '../../components/FlowDiagram.astro';
+import { projectGallery } from '../../lib/project-images';
+import { SHOW_LIVE_LINKS } from '../../lib/site';
 import DemoAccess from '../../components/DemoAccess.astro';
 import { getCollection, render } from 'astro:content';
 
@@ -16,16 +18,17 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { name, excerpt, statusLabel, tech, video, image, imageAlt, liveUrl, ctaLabel, demoLinks, flow, flowBranch, whatsappMessage } = entry.data;
+const { name, excerpt, statusLabel, tech, liveUrl, ctaLabel, demoLinks, flow, flowBranch, whatsappMessage } = entry.data;
+const gallery = projectGallery(entry.id, name, entry.data.gallery);
 const waHref = `https://wa.me/573046738074?text=${encodeURIComponent(whatsappMessage)}`;
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://desquin.com/' },
-    { '@type': 'ListItem', position: 2, name: 'Proyectos', item: 'https://desquin.com/portafolio' },
-    { '@type': 'ListItem', position: 3, name, item: `https://desquin.com/portafolio/${entry.id}` },
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://desquin.vercel.app/' },
+    { '@type': 'ListItem', position: 2, name: 'Proyectos', item: 'https://desquin.vercel.app/portafolio' },
+    { '@type': 'ListItem', position: 3, name, item: `https://desquin.vercel.app/portafolio/${entry.id}` },
   ],
 };
 ---
@@ -38,13 +41,9 @@ const breadcrumbSchema = {
         <span>{name}</span>
       </nav>
 
-      {(video || image) && (
-        <div class="project-hero-media" style="margin-bottom:32px;">
-          <div class="glass-panel" style="aspect-ratio:16/9; overflow:hidden; position:relative;">
-            <ProjectMedia name={name} statusLabel={statusLabel} video={video} image={image} imageAlt={imageAlt} />
-          </div>
-        </div>
-      )}
+      <div style="margin-bottom:32px;">
+        <ProjectGallery name={name} items={gallery} />
+      </div>
 
       <div class="split-2" style="grid-template-columns: 1.3fr 1fr; align-items:start;">
         <div>
@@ -65,13 +64,13 @@ const breadcrumbSchema = {
           </div>
 
           <div style="display:flex; flex-direction:column; gap:10px;">
-            {demoLinks && demoLinks.length > 0 ? (
+            {SHOW_LIVE_LINKS && (demoLinks && demoLinks.length > 0 ? (
               <DemoAccess links={demoLinks} triggerLabel={ctaLabel ?? 'Ver sitio en vivo'} />
             ) : liveUrl ? (
               <a href={liveUrl} target="_blank" rel="noopener" class="btn btn-ghost" style="justify-content:center;">{ctaLabel ?? 'Ver sitio en vivo'}</a>
             ) : ctaLabel && (
               <span class="btn btn-ghost btn-pending" style="justify-content:center;">{ctaLabel} <em>próximamente</em></span>
-            )}
+            ))}
             <a href={waHref} target="_blank" rel="noopener" class="btn btn-whatsapp" style="justify-content:center;">Contactar por este proyecto</a>
           </div>
         </div>

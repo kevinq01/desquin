@@ -5,8 +5,6 @@ excerpt: "Software para gestión de excursiones: contratos por colegio, inscripc
 status: "sistema"
 statusLabel: "Producto de software"
 tech: ["React", "TypeScript", "Laravel", "MySQL", "Bootstrap", "Reportes PDF/Excel", "Roles y permisos"]
-image: "/img/proyectos/gestion-excursiones-preview.png"
-imageAlt: "Panel administrativo de la plataforma de gestión de excursiones"
 liveUrl: ""
 ctaLabel: "Ver sitio en vivo"
 demoLinks:

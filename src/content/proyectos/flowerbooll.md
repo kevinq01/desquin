@@ -5,7 +5,6 @@ excerpt: "Sistema ERP pensado para la gestión interna de un cultivo de flores: 
 status: "disponible"
 statusLabel: "Disponible para la venta"
 tech: ["PHP", "JavaScript", "CSS3", "Bootstrap", "MySQL", "Gráficas", "Nómina", "Control de accesos"]
-video: "https://player.vimeo.com/video/1169019686?background=1&autoplay=1&muted=1&loop=1"
 liveUrl: "https://flowerbooll.desquin.com/"
 flow: ["Proveedor", "Compra de insumos", "Producto", "Venta", "Cliente", "Reporte"]
 whatsappMessage: "Hola, quiero información sobre el proyecto FlowerBooll"
