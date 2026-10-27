@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TechIcon from '../../components/TechIcon.astro';
+import ProjectMedia from '../../components/ProjectMedia.astro';
+import { getCollection } from 'astro:content';
+
+const proyectos = (await getCollection('proyectos')).sort((a, b) => a.data.order - b.data.order);
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://desquin.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Proyectos', item: 'https://desquin.com/portafolio' },
+  ],
+};
+---
+<BaseLayout
+  title="Proyectos — Software a la medida, gestión de excursiones y reservas"
+  description="Sistemas de gestión reales construidos por Desquin: software para excursiones, plataformas de reservas para agencias de viajes y sistemas administrativos a la medida."
+  jsonLd={[breadcrumbSchema]}
+>
+  <section class="section" style="padding-top:56px;">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a><span>/</span>
+        <span>Proyectos</span>
+      </nav>
+      <div class="section-head">
+        <span class="eyebrow">Proyectos</span>
+        <h1>Proyectos reales, no maquetas</h1>
+        <p class="lead">Sistemas de gestión, plataformas administrativas y software de reservas construidos por Desquin — la mayoría en operación real, listos para adaptarse a tu negocio.</p>
+      </div>
+
+      <div class="grid-2">
+        {proyectos.map((p, i) => (
+          <a href={`/portafolio/${p.id}`} class="glass-panel project-card reveal" style={`transition-delay:${i * 60}ms`}>
+            <div class="project-media">
+              <ProjectMedia name={p.data.name} statusLabel={p.data.statusLabel} video={p.data.video} image={p.data.image} imageAlt={p.data.imageAlt} />
+            </div>
+            <div class="project-body">
+              <h3>{p.data.name}</h3>
+              <p>{p.data.excerpt}</p>
+              <div class="project-tags">
+                {p.data.tech.slice(0, 4).map((t) => <span class="tech-tag"><TechIcon name={t} size={15} />{t}</span>)}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

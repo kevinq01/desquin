@@ -1,0 +1,38 @@
+---
+// Detalle espacial pequeño y recurrente (satélite / planeta) para reforzar
+// la temática de astronauta fuera del hero, sin repetir el mismo peso visual.
+interface Props {
+  variant: 'satellite' | 'planet' | 'star';
+  class?: string;
+}
+
+const { variant, class: className = '' } = Astro.props;
+---
+<div class={`space-accent space-accent-${variant} ${className}`} aria-hidden="true">
+  {variant === 'satellite' ? (
+    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(30,30) rotate(-25)">
+        <rect x="-11" y="-6" width="22" height="12" rx="2.5" fill="#8c5efc" />
+        <rect x="-22" y="-2.5" width="9" height="5" fill="#7238fb" />
+        <rect x="13" y="-2.5" width="9" height="5" fill="#7238fb" />
+        <line x1="0" y1="-6" x2="0" y2="-14" stroke="#8c5efc" stroke-width="1.8" />
+        <circle cx="0" cy="-15.5" r="2" fill="#dfe6ff" />
+      </g>
+    </svg>
+  ) : variant === 'planet' ? (
+    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="28" cy="30" r="14" fill="#7238fb" />
+      <circle cx="23" cy="25" r="4" fill="#8c5efc" opacity="0.6" />
+      <ellipse cx="28" cy="30" rx="24" ry="6" fill="none" stroke="#8c5efc" stroke-width="2" opacity="0.7" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <path
+        transform="translate(30,30) scale(3.2)"
+        fill="#8c5efc"
+        d="M0,-6 L1.6,-1.6 L6,0 L1.6,1.6 L0,6 L-1.6,1.6 L-6,0 L-1.6,-1.6 Z"
+      />
+      <circle cx="30" cy="30" r="2.4" fill="#dfe6ff" />
+    </svg>
+  )}
+</div>

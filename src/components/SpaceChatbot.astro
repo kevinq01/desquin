@@ -1,0 +1,174 @@
+---
+// Widget de chat "Agente del espacio" — sin IA todavía (reglas + palabras clave).
+// La resolución de respuestas vive en src/lib/chatbot-data.ts (resolveAnswer),
+// que ya es el único punto que habrá que tocar para conectar una IA real después.
+---
+<div class="chatbot-root">
+  <button
+    id="chatbotLauncher"
+    class="chatbot-launcher"
+    type="button"
+    aria-haspopup="dialog"
+    aria-expanded="false"
+    aria-controls="chatbotWindow"
+    aria-label="Abrir el agente del espacio"
+  >
+    <svg class="chatbot-launcher-icon chatbot-icon-open" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="20" cy="20" r="17" fill="#eceafa" />
+      <circle cx="20" cy="20" r="13" fill="#a47cff" />
+      <circle cx="17" cy="17" r="3.2" fill="#fff" />
+      <circle cx="24" cy="19" r="2.4" fill="#fff" opacity="0.85" />
+      <path d="M14 25 Q20 30 26 25" stroke="#241c38" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.55" />
+    </svg>
+    <svg class="chatbot-launcher-icon chatbot-icon-close" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" stroke="#fff" stroke-width="2.4" stroke-linecap="round" />
+    </svg>
+  </button>
+
+  <section id="chatbotWindow" class="chatbot-window glass-panel" role="dialog" aria-modal="false" aria-labelledby="chatbotTitle" hidden>
+    <header class="chatbot-header">
+      <div class="chatbot-header-avatar" aria-hidden="true">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="17" fill="#eceafa" />
+          <circle cx="20" cy="20" r="13" fill="#a47cff" />
+          <circle cx="17" cy="17" r="3.2" fill="#fff" />
+          <circle cx="24" cy="19" r="2.4" fill="#fff" opacity="0.85" />
+        </svg>
+      </div>
+      <div>
+        <p id="chatbotTitle" class="chatbot-title">Agente del espacio</p>
+        <p class="chatbot-subtitle">Resolviendo dudas en órbita</p>
+      </div>
+      <button type="button" class="chatbot-close" aria-label="Cerrar chat">×</button>
+    </header>
+
+    <div class="chatbot-log" id="chatbotLog" role="log" aria-live="polite"></div>
+    <div class="chatbot-quick-replies" id="chatbotQuickReplies" role="group" aria-label="Preguntas rápidas"></div>
+
+    <form class="chatbot-input-row" id="chatbotForm">
+      <label for="chatbotInput" class="sr-only">Escribe tu pregunta</label>
+      <input id="chatbotInput" type="text" autocomplete="off" placeholder="Escribe tu pregunta…" />
+      <button type="submit" class="chatbot-send" aria-label="Enviar mensaje">➤</button>
+    </form>
+  </section>
+</div>
+
+<script>
+  import { resolveAnswer, getAnswerForTopic, getRootQuickReplies } from '../lib/chatbot-data';
+  import type { BotAnswer, QuickReply } from '../lib/chatbot-data';
+
+  const WHATSAPP_NUMBER = '573046738074';
+  const GREETING = 'Hola, soy el agente del espacio de Desquin 🚀. Elige una pregunta o escribe la tuya.';
+  const FALLBACK = 'No tengo una respuesta guionada para eso todavía. Cuéntaselo directo a un humano por WhatsApp y te ayudamos enseguida.';
+
+  const launcher = document.getElementById('chatbotLauncher') as HTMLButtonElement | null;
+  const win = document.getElementById('chatbotWindow') as HTMLElement | null;
+  const log = document.getElementById('chatbotLog') as HTMLElement | null;
+  const qrBox = document.getElementById('chatbotQuickReplies') as HTMLElement | null;
+  const form = document.getElementById('chatbotForm') as HTMLFormElement | null;
+  const input = document.getElementById('chatbotInput') as HTMLInputElement | null;
+  const closeBtn = win?.querySelector('.chatbot-close') as HTMLButtonElement | null;
+
+  if (launcher && win && log && qrBox && form && input && closeBtn) {
+    let isOpen = false;
+    let greeted = false;
+    let lastUserText = 'Hola, quiero información sobre tus servicios';
+
+    const waLink = (text: string) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+    const menuReply: QuickReply = { id: '__menu__', label: 'Ver todas las preguntas' };
+    const waReply: QuickReply = { id: '__whatsapp__', label: 'Hablar por WhatsApp' };
+
+    function appendMessage(role: 'bot' | 'user', text: string) {
+      const p = document.createElement('p');
+      p.className = `chatbot-msg chatbot-msg-${role}`;
+      p.textContent = text;
+      log!.appendChild(p);
+      log!.scrollTop = log!.scrollHeight;
+    }
+
+    function renderQuickReplies(items: QuickReply[]) {
+      qrBox!.innerHTML = '';
+      items.forEach((item) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chatbot-chip';
+        btn.textContent = item.label;
+        btn.addEventListener('click', () => onQuickReply(item));
+        qrBox!.appendChild(btn);
+      });
+    }
+
+    function present(result: BotAnswer | null) {
+      if (result) {
+        appendMessage('bot', result.text);
+        renderQuickReplies([...(result.quickReplies ?? []), menuReply, waReply]);
+      } else {
+        appendMessage('bot', FALLBACK);
+        renderQuickReplies([menuReply, waReply]);
+      }
+    }
+
+    async function onQuickReply(item: QuickReply) {
+      if (item.id === '__menu__') {
+        appendMessage('bot', '¿Sobre qué quieres preguntar?');
+        renderQuickReplies(getRootQuickReplies());
+        return;
+      }
+      if (item.id === '__whatsapp__') {
+        window.open(waLink(lastUserText), '_blank', 'noopener');
+        return;
+      }
+      appendMessage('user', item.label);
+      lastUserText = item.label;
+      present(getAnswerForTopic(item.id));
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const raw = input!.value.trim();
+      if (!raw) return;
+      input!.value = '';
+      appendMessage('user', raw);
+      lastUserText = raw;
+      const result = await resolveAnswer(raw);
+      present(result);
+    });
+
+    function openChat() {
+      isOpen = true;
+      win!.hidden = false;
+      requestAnimationFrame(() => {
+        win!.classList.add('is-open');
+        launcher!.classList.add('is-open');
+      });
+      launcher!.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('chatbot-is-open');
+      if (!greeted) {
+        greeted = true;
+        appendMessage('bot', GREETING);
+        renderQuickReplies(getRootQuickReplies());
+      }
+      requestAnimationFrame(() => input!.focus());
+    }
+
+    function closeChat() {
+      isOpen = false;
+      win!.classList.remove('is-open');
+      launcher!.classList.remove('is-open');
+      launcher!.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('chatbot-is-open');
+      const onEnd = () => {
+        win!.hidden = true;
+        win!.removeEventListener('transitionend', onEnd);
+      };
+      win!.addEventListener('transitionend', onEnd);
+      launcher!.focus();
+    }
+
+    launcher.addEventListener('click', () => (isOpen ? closeChat() : openChat()));
+    closeBtn.addEventListener('click', closeChat);
+    win.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeChat();
+    });
+  }
+</script>

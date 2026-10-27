@@ -1,0 +1,62 @@
+---
+const { pathname } = Astro.url;
+const links = [
+  { href: '/', label: 'Inicio' },
+  { href: '/servicios', label: 'Servicios' },
+  { href: '/portafolio', label: 'Proyectos' },
+  { href: '/nosotros', label: 'Nosotros' },
+  { href: '/contacto', label: 'Contacto' },
+];
+---
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="brand">
+      <img src="/img/logo.png" alt="Desquin" width="36" height="36" />
+      Desquin
+    </a>
+
+    <nav>
+      <ul class="nav-links" id="nav-links">
+        {links.map(link => (
+          <li>
+            <a href={link.href} aria-current={pathname === link.href ? 'page' : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <a href="/contacto" class="btn header-cta">
+      Hablemos
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 17L17 7M9 7h8v8" />
+      </svg>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-links">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 6h18M3 12h18M3 18h18" />
+      </svg>
+    </button>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const nav = document.getElementById('nav-links');
+  toggle?.addEventListener('click', () => {
+    const isOpen = nav?.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(!!isOpen));
+  });
+</script>
+
+<script>
+  const header = document.querySelector('.site-header');
+  const SCROLL_THRESHOLD = 40;
+  const syncScrolledState = () => {
+    header?.classList.toggle('scrolled', window.scrollY > SCROLL_THRESHOLD);
+  };
+  syncScrolledState();
+  window.addEventListener('scroll', syncScrolledState, { passive: true });
+</script>

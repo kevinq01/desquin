@@ -1,0 +1,173 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import SpaceChatbot from '../components/SpaceChatbot.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  waMessage?: string;
+  jsonLd?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const { title, description, waMessage, jsonLd = [], noindex = false } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/img/logo.png', Astro.site);
+const fullTitle = title.includes('Desquin') ? title : `${title} · Desquin`;
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': 'https://desquin.com/#organization',
+  name: 'Desquin',
+  alternateName: 'Desquin Software',
+  url: 'https://desquin.com',
+  logo: 'https://desquin.com/img/logo.png',
+  image: 'https://desquin.com/img/logo.png',
+  description: 'Desarrollo de software, automatizaciones, servidores y bases de datos a la medida, con atención remota para cualquier ubicación.',
+  priceRange: '$$',
+  areaServed: 'CO',
+  address: {
+    '@type': 'PostalAddress',
+    addressRegion: 'Antioquia',
+    addressCountry: 'CO',
+  },
+  founder: {
+    '@type': 'Person',
+    name: 'Kevin Quintero',
+    jobTitle: 'Ingeniero de Sistemas',
+  },
+  sameAs: [
+    'https://github.com/kevinq01',
+    'https://www.linkedin.com/in/kevin-quintero-843h/',
+    'https://www.instagram.com/kevin_qh123/',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+57-304-673-8074',
+    contactType: 'customer service',
+    areaServed: 'CO',
+    availableLanguage: ['es'],
+  },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Servicios Desquin',
+    itemListElement: [
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Desarrollo web', description: 'Sitios corporativos, portafolios, tiendas en línea y aplicaciones web a medida.' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Software de gestión de excursiones', description: 'Plataformas para agencias de viajes y colegios: contratos, estudiantes, pagos y acomodaciones.' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Software de gestión de reservas', description: 'Plataformas de reservas para agencias de viajes: cotizaciones, pagos, proveedores y comisiones.' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Automatizaciones', description: 'Integraciones, notificaciones y flujos de trabajo automáticos.' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Servidores e infraestructura', description: 'Configuración, despliegue, monitoreo y mantenimiento de servidores.' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Bases de datos', description: 'Diseño, optimización y migración de bases de datos.' } },
+    ],
+  },
+};
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/img/logo.png" />
+  <link rel="apple-touch-icon" href="/img/logo.png" />
+  <link rel="canonical" href={canonicalURL} />
+  <meta name="theme-color" content="#09090b" />
+
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Desquin" />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1080" />
+  <meta property="og:image:height" content="1080" />
+  <meta property="og:locale" content="es_CO" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" rel="stylesheet" />
+
+  <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+  {jsonLd.map((schema) => (
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  ))}
+</head>
+<body>
+  <Header />
+  <main>
+    <slot />
+  </main>
+  <Footer />
+  <WhatsAppFloat message={waMessage} />
+  <SpaceChatbot />
+
+  <script>
+    // Fondo de estrellas — respeta prefers-reduced-motion y no bloquea el render inicial
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const starContainer = document.createElement('div');
+      starContainer.className = 'stars';
+      document.body.prepend(starContainer);
+
+      const density = Math.min(160, Math.max(70, Math.round(window.innerWidth / 10)));
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < density; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 2 + 1;
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.animationDuration = `${Math.random() * 4 + 2}s`;
+        frag.appendChild(star);
+      }
+      starContainer.appendChild(frag);
+    }
+  </script>
+
+  <script>
+    // Efecto spotlight en tarjetas: brillo morado que sigue al cursor.
+    let spotRaf = null;
+    document.addEventListener('mousemove', (e) => {
+      const card = e.target?.closest?.('.glass-panel');
+      if (!card || spotRaf) return;
+      spotRaf = requestAnimationFrame(() => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+        card.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+        spotRaf = null;
+      });
+    });
+  </script>
+
+  <script>
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    els.forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>

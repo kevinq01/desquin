@@ -1,0 +1,36 @@
+---
+interface Branch {
+  label: string;
+  items: string[];
+  note?: string;
+}
+
+interface Props {
+  steps: string[];
+  branch?: Branch;
+  title?: string;
+}
+
+const { steps, branch, title = 'Cómo funciona' } = Astro.props;
+---
+<div class="flow-box">
+  {title && <span class="eyebrow flow-title">{title}</span>}
+  <div class="flow">
+    {steps.map((step, i) => (
+      <span class="flow-node">
+        <span class="flow-step">{step}</span>
+        {i < steps.length - 1 && <span class="flow-arrow" aria-hidden="true">→</span>}
+      </span>
+    ))}
+  </div>
+
+  {branch && (
+    <div class="flow-branch">
+      <span class="flow-branch-label">{branch.label}</span>
+      <div class="flow-branch-items">
+        {branch.items.map((item) => <span class="flow-leaf">{item}</span>)}
+      </div>
+      {branch.note && <p class="flow-branch-note">{branch.note}</p>}
+    </div>
+  )}
+</div>

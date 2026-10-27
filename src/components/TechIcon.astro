@@ -1,0 +1,24 @@
+---
+import { techIcons } from '../lib/tech-icons';
+
+interface Props {
+  name: string;
+  size?: number;
+}
+
+const { name, size = 20 } = Astro.props;
+const icon = techIcons[name];
+---
+{icon && (
+  <svg
+    class="tech-icon"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path fill={icon.hex} d={icon.path} />
+  </svg>
+)}

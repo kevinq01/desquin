@@ -1,0 +1,405 @@
+---
+// Astronauta pixel-art generado por ALGORITMO (círculos, cápsulas y rectángulos
+// calculados por matemática, no ASCII tecleado a mano) — así se garantiza por
+// construcción que la grilla es consistente. El brazo que saluda es la ÚNICA
+// representación del brazo derecho (no hay un brazo "de reposo" oculto detrás
+// que haya que tapar con un parche) — eso es lo que antes causaba el rectángulo
+// blanco: dos brazos superpuestos en vez de solo uno.
+
+interface Px { x: number; y: number; color: string }
+
+const COLORS = {
+  outline: '#1a1330',
+  helmet: '#eceafa',
+  visor: '#2a2140',
+  visorHi: '#8b6fe0',
+  backpack: '#c9c5e0',
+  vent: '#8b83ab',
+  accent: '#7238fb',
+  boot: '#241c38',
+  highlight: '#ffffff',
+};
+
+// Degradado de traje en 5 tonos + dithering ordenado (patrón de 2px) en las
+// fronteras de banda, para un sombreado suave sin perder el look pixel-art.
+// norm: 0 = más iluminado, 1 = más sombra.
+const SUIT_SHADE = ['#ffffff', '#f4f3f9', '#e3dff2', '#d3cfe8', '#b3addb'];
+function shadeAt(norm: number, x: number, y: number): string {
+  const bands = SUIT_SHADE.length;
+  const scaled = Math.max(0, Math.min(1, norm)) * (bands - 1);
+  const lo = Math.floor(scaled);
+  const hi = Math.min(bands - 1, lo + 1);
+  const frac = scaled - lo;
+  const ditherThreshold = (x + y) % 2 === 0 ? 0.34 : 0.66;
+  return SUIT_SHADE[frac > ditherThreshold ? hi : lo];
+}
+const BOOT_SHADE = ['#3a3155', '#241c38', '#180f28'];
+function bootShadeAt(norm: number, x: number, y: number): string {
+  const bands = BOOT_SHADE.length;
+  const scaled = Math.max(0, Math.min(1, norm)) * (bands - 1);
+  const lo = Math.floor(scaled);
+  const hi = Math.min(bands - 1, lo + 1);
+  const frac = scaled - lo;
+  const ditherThreshold = (x + y) % 2 === 0 ? 0.34 : 0.66;
+  return BOOT_SHADE[frac > ditherThreshold ? hi : lo];
+}
+
+// Grilla más alta y con piernas mucho más largas en proporción al torso/casco
+// (antes las piernas eran ~20% del alto total; ahora ~43%, menos "pati corto").
+const W = 52;
+const H = 88;
+const cx = 25.5;
+
+const helmetCY = 14;
+const helmetR = 13;
+
+const torsoTop = 27;
+const torsoBottom = 47;
+const shoulderHW = 14;
+const waistHW = 9;
+
+const beltTop = 47;
+const beltBottom = 50;
+
+const legTop = 50;
+const legBottom = 88;
+const legGapHalf = 2;
+const legW = 8;
+const bootRows = 7;
+
+// Dibuja una cápsula (segmento grueso con extremos redondeados) entre dos
+// puntos, con sombreado degradado según el lado — misma función para los
+// dos brazos, así quedan visualmente consistentes entre sí.
+function drawCapsule(
+  x0: number, y0: number, x1: number, y1: number, thickness: number,
+  setFn: (x: number, y: number, color: string) => void,
+) {
+  const abx = x1 - x0;
+  const aby = y1 - y0;
+  const ablen2 = abx * abx + aby * aby;
+  const minX = Math.min(x0, x1) - thickness - 1;
+  const maxX = Math.max(x0, x1) + thickness + 1;
+  const minY = Math.min(y0, y1) - thickness - 1;
+  const maxY = Math.max(y0, y1) + thickness + 1;
+  for (let y = Math.floor(minY); y <= Math.ceil(maxY); y++) {
+    for (let x = Math.floor(minX); x <= Math.ceil(maxX); x++) {
+      const apx = x - x0;
+      const apy = y - y0;
+      let t = ablen2 > 0 ? (apx * abx + apy * aby) / ablen2 : 0;
+      t = Math.max(0, Math.min(1, t));
+      const projx = x0 + t * abx;
+      const projy = y0 + t * aby;
+      const d = Math.hypot(x - projx, y - projy);
+      if (d <= thickness) {
+        const side = apx * aby - apy * abx;
+        const sideNorm = Math.max(0, Math.min(1, 0.5 - side / (thickness * 2)));
+        setFn(x, y, d > thickness - 0.9 ? COLORS.outline : shadeAt(sideNorm, x, y));
+      }
+    }
+  }
+}
+
+// Mano/guante redondeado; con dedos opcionales (para el saludo).
+function drawHand(
+  handX: number, handY: number, radius: number,
+  setFn: (x: number, y: number, color: string) => void,
+  fingers: boolean,
+) {
+  for (let y = Math.floor(handY - radius); y <= Math.ceil(handY + radius); y++) {
+    for (let x = Math.floor(handX - radius); x <= Math.ceil(handX + radius); x++) {
+      const d = Math.hypot(x - handX, y - handY);
+      if (d <= radius) setFn(x, y, d > radius - 0.8 ? COLORS.outline : COLORS.accent);
+    }
+  }
+  if (fingers) {
+    const angles = [-40, -10, 20, 50];
+    for (const ang of angles) {
+      const rad = (ang * Math.PI) / 180;
+      const fx = Math.cos(rad);
+      const fy = -Math.sin(rad);
+      // Arrancan DENTRO del puño (0.55×radio) en vez de justo en el borde:
+      // así el redondeo a píxel entero nunca deja un hueco de 1px entre el
+      // dedo y la mano (antes se veían "sueltos").
+      for (let len = 0; len <= 3.6; len += 0.35) {
+        const dist = radius * 0.55 + len;
+        setFn(handX + fx * dist, handY + fy * dist, COLORS.accent);
+      }
+    }
+  }
+}
+
+function buildAstronaut() {
+  const grid = new Map<string, string>();
+  const set = (x: number, y: number, color: string) => {
+    const xi = Math.round(x);
+    const yi = Math.round(y);
+    if (xi >= -12 && xi < W + 12 && yi >= -20 && yi < H) grid.set(`${xi},${yi}`, color);
+  };
+
+  // mochila (fuera de los hombros, a ambos lados — ahora SIEMPRE visible en
+  // los dos lados, porque ya no hace falta taparla con un parche)
+  const backpackTop = torsoTop + 2;
+  const backpackBottom = torsoBottom - 2;
+  for (let y = backpackTop; y < backpackBottom; y++) {
+    for (const side of [-1, 1]) {
+      const bx0 = cx + side * (shoulderHW + 1);
+      const bx1 = cx + side * (shoulderHW + 5);
+      const xa = Math.min(bx0, bx1);
+      const xb = Math.max(bx0, bx1);
+      for (let x = Math.floor(xa); x <= Math.ceil(xb); x++) {
+        const rel = y - backpackTop;
+        if (x === Math.floor(xa) || x === Math.ceil(xb)) set(x, y, COLORS.outline);
+        else if (rel % 4 === 0) set(x, y, COLORS.vent);
+        else set(x, y, COLORS.backpack);
+      }
+    }
+  }
+
+  // torso (cónico, degradado suave de 5 tonos con dithering)
+  for (let y = torsoTop; y < torsoBottom; y++) {
+    const t = (y - torsoTop) / (torsoBottom - torsoTop);
+    const halfW = shoulderHW + (waistHW - shoulderHW) * t;
+    for (let x = Math.floor(cx - halfW); x <= Math.ceil(cx + halfW); x++) {
+      const dx = Math.abs(x - cx);
+      if (dx > halfW) continue;
+      const edge = halfW - dx;
+      const norm = dx / halfW;
+      if (edge < 1) set(x, y, COLORS.outline);
+      else set(x, y, shadeAt(norm, x, y));
+    }
+  }
+
+  // parche del pecho: el logo de Desquin en pixel-art (círculo + anillo + "K"),
+  // en vez del sparkle genérico de antes.
+  const patchCX = cx;
+  const patchCY = torsoTop + 9;
+  const patchR = 7;
+  for (let y = Math.floor(patchCY - patchR); y <= Math.ceil(patchCY + patchR); y++) {
+    for (let x = Math.floor(patchCX - patchR); x <= Math.ceil(patchCX + patchR); x++) {
+      const d = Math.hypot(x - patchCX, y - patchCY);
+      if (d <= patchR) set(x, y, d > patchR - 1 ? COLORS.outline : COLORS.accent);
+    }
+  }
+  // anillo tipo "planeta" cruzando el círculo, como el logo real
+  for (let y = Math.floor(patchCY - patchR); y <= Math.ceil(patchCY + patchR); y++) {
+    for (let x = Math.floor(patchCX - patchR - 2); x <= Math.ceil(patchCX + patchR + 2); x++) {
+      const rx = x - patchCX;
+      const ry = (y - patchCY) * 2.6;
+      const ringD = Math.hypot(rx, ry);
+      if (ringD > patchR + 0.5 && ringD < patchR + 1.6) set(x, y, COLORS.highlight);
+    }
+  }
+  // "K" en píxeles, centrada en el parche
+  const kRows = [
+    'X...X',
+    'X..X.',
+    'X.X..',
+    'XX...',
+    'X.X..',
+    'X..X.',
+    'X...X',
+  ];
+  const kX0 = Math.round(patchCX) - 2;
+  const kY0 = Math.round(patchCY) - 3;
+  kRows.forEach((row, ry) => {
+    [...row].forEach((ch, rx) => {
+      if (ch === 'X') set(kX0 + rx, kY0 + ry, COLORS.highlight);
+    });
+  });
+
+  // cinturón
+  for (let y = beltTop; y < beltBottom; y++) {
+    for (let x = Math.floor(cx - waistHW); x <= Math.ceil(cx + waistHW); x++) {
+      set(x, y, y === beltTop ? COLORS.outline : COLORS.accent);
+    }
+  }
+
+  // brazo IZQUIERDO (de reposo, permanente): cápsula desde el hombro hasta
+  // una mano colgando ligeramente hacia afuera — misma técnica que el brazo
+  // que saluda, para que ambos brazos se vean consistentes entre sí.
+  const leftShoulder = { x: cx - shoulderHW + 1, y: torsoTop + 3 };
+  const leftHand = { x: cx - shoulderHW - 4, y: torsoTop + 21 };
+  drawCapsule(leftShoulder.x, leftShoulder.y, leftHand.x, leftHand.y, 3.4, set);
+  drawHand(leftHand.x, leftHand.y, 3.4, set, false);
+
+  // piernas (con separación real y botas con suela) — mucho más largas que
+  // antes en proporción al resto del cuerpo.
+  for (const side of [-1, 1]) {
+    const lx0 = cx + side * legGapHalf;
+    const lx1 = cx + side * (legGapHalf + legW);
+    const xa = Math.min(lx0, lx1);
+    const xb = Math.max(lx0, lx1);
+    for (let y = legTop; y < legBottom; y++) {
+      const isBoot = legBottom - y <= bootRows;
+      const flare = isBoot && legBottom - y <= 2 ? 1.5 : 0;
+      const mid = (xa + xb) / 2;
+      const halfw = (xb - xa) / 2 + flare;
+      for (let x = Math.floor(mid - halfw); x <= Math.ceil(mid + halfw); x++) {
+        const dx = Math.abs(x - mid);
+        if (dx > halfw) continue;
+        const edge = halfw - dx;
+        const norm = dx / halfw;
+        if (isBoot) {
+          set(x, y, edge < 1 ? COLORS.outline : bootShadeAt(norm, x, y));
+        } else {
+          const kneeBand = y >= legTop + 15 && y <= legTop + 16;
+          if (edge < 1) set(x, y, COLORS.outline);
+          else if (kneeBand) set(x, y, SUIT_SHADE[3]);
+          else set(x, y, shadeAt(norm, x, y));
+        }
+      }
+    }
+  }
+
+  // cuello / collar (antes del casco para que el casco quede encima)
+  for (let y = Math.floor(helmetCY + helmetR - 3); y < torsoTop; y++) {
+    for (let x = Math.floor(cx - 6); x <= Math.ceil(cx + 6); x++) {
+      const dx = Math.abs(x - cx);
+      if (dx > 6) continue;
+      if (y === Math.floor(helmetCY + helmetR - 3) || dx > 5) set(x, y, COLORS.outline);
+      else set(x, y, COLORS.backpack);
+    }
+  }
+
+  // casco (al final, queda encima de cuello/hombros)
+  for (let y = Math.floor(helmetCY - helmetR); y <= Math.ceil(helmetCY + helmetR); y++) {
+    for (let x = Math.floor(cx - helmetR); x <= Math.ceil(cx + helmetR); x++) {
+      const dx = x - cx;
+      const dy = y - helmetCY;
+      const d = Math.hypot(dx, dy);
+      if (d > helmetR) continue;
+      const norm = d / helmetR;
+      if (norm > 0.9) set(x, y, COLORS.outline);
+      else if (norm > 0.66) {
+        const isHi = dx < 0 && dy < 0 && Math.abs(dx) > Math.abs(dy) * 0.4;
+        if (isHi && norm > 0.74 && norm < 0.86) set(x, y, COLORS.highlight);
+        else {
+          const shellShade = dx > 0 && dy > 0 ? Math.min(1, (norm - 0.66) / 0.24 + 0.3) : ((norm - 0.66) / 0.24) * 0.35;
+          set(x, y, shadeAt(shellShade, x, y));
+        }
+      } else if (norm > 0.6) set(x, y, COLORS.outline);
+      else {
+        const diag = dx - dy;
+        if (diag > 2 && diag < 9) set(x, y, COLORS.visorHi);
+        else if (diag >= 9 && diag < 12) set(x, y, COLORS.highlight);
+        else set(x, y, COLORS.visor);
+      }
+    }
+  }
+
+  // brazo DERECHO saludando: capa aparte para poder rotarla con CSS. Es la
+  // ÚNICA versión del brazo derecho (no hay nada estático debajo que tapar),
+  // así que no puede aparecer ningún parche/rectángulo — no existe ese bug
+  // por construcción.
+  const overlay = new Map<string, string>();
+  const setOv = (x: number, y: number, color: string) => {
+    const xi = Math.round(x);
+    const yi = Math.round(y);
+    if (xi >= -12 && xi < W + 12 && yi >= -20 && yi < H) overlay.set(`${xi},${yi}`, color);
+  };
+  const shoulderX = cx + shoulderHW - 1;
+  const shoulderY = torsoTop + 3;
+  const handX = cx + shoulderHW + 15;
+  const handY = torsoTop - 20;
+  drawCapsule(shoulderX, shoulderY, handX, handY, 3.4, setOv);
+  drawHand(handX, handY, 3.5, setOv, true);
+
+  const bodyPixels: Px[] = Array.from(grid.entries()).map(([key, color]) => {
+    const [x, y] = key.split(',').map(Number);
+    return { x, y, color };
+  });
+  const armPixels: Px[] = Array.from(overlay.entries()).map(([key, color]) => {
+    const [x, y] = key.split(',').map(Number);
+    return { x, y, color };
+  });
+
+  return { bodyPixels, armPixels, shoulderPivot: { x: shoulderX, y: shoulderY } };
+}
+
+const { bodyPixels, armPixels, shoulderPivot } = buildAstronaut();
+---
+<div id="astronautFrame" class="astronaut-frame">
+  <div class="astronaut-parallax" id="astronautParallax">
+    <div class="astronaut-float">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        xmlns="http://www.w3.org/2000/svg"
+        class="astronaut-svg"
+        shape-rendering="crispEdges"
+        role="img"
+        aria-label="Ilustración pixel art de un astronauta saludando"
+      >
+        <rect class="astronaut-dust astronaut-dust-1" x="-3" y="6" width="1" height="1" fill="#7238fb" />
+        <rect class="astronaut-dust astronaut-dust-2" x="-5" y="3" width="0.8" height="0.8" fill="#8c5efc" />
+        <rect class="astronaut-dust astronaut-dust-3" x="-2" y="2" width="0.6" height="0.6" fill="#f4f3f9" />
+        {bodyPixels.map((p) => (
+          <rect x={p.x} y={p.y} width="1" height="1" fill={p.color} />
+        ))}
+        <g class="astronaut-arm-wave" style={`transform-origin: ${shoulderPivot.x}px ${shoulderPivot.y}px;`}>
+          {armPixels.map((p) => (
+            <rect x={p.x} y={p.y} width="1" height="1" fill={p.color} />
+          ))}
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  const frame = document.getElementById('astronautFrame');
+  const parallax = document.getElementById('astronautParallax');
+  if (frame && parallax) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let active = false;
+    let rect = frame.getBoundingClientRect();
+
+    const updateRect = () => { rect = frame.getBoundingClientRect(); };
+
+    const onPointerMove = (clientX: number, clientY: number) => {
+      const relX = (clientX - rect.left) / rect.width - 0.5;
+      const relY = (clientY - rect.top) / rect.height - 0.5;
+      const tx = Math.max(-1, Math.min(1, relX)) * 10;
+      const ty = Math.max(-1, Math.min(1, relY)) * 8;
+      parallax.style.setProperty('--tx', `${tx}px`);
+      parallax.style.setProperty('--ty', `${ty}px`);
+    };
+
+    const onMouseMove = (e: MouseEvent) => onPointerMove(e.clientX, e.clientY);
+    const onTouchMove = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    const onScroll = () => {
+      const mid = rect.top + rect.height / 2;
+      const viewportMid = window.innerHeight / 2;
+      const delta = Math.max(-1, Math.min(1, (mid - viewportMid) / window.innerHeight));
+      parallax.style.setProperty('--rot', `${delta * -4}deg`);
+    };
+
+    const attach = () => {
+      if (active || reduceMotion) return;
+      active = true;
+      updateRect();
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+      window.addEventListener('touchmove', onTouchMove, { passive: true });
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', updateRect, { passive: true });
+    };
+
+    const detach = () => {
+      if (!active) return;
+      active = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', updateRect);
+    };
+
+    if (!reduceMotion) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => (entry.isIntersecting ? attach() : detach()));
+      }, { threshold: 0.05 });
+      io.observe(frame);
+    }
+  }
+</script>

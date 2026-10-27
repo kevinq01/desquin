@@ -1,0 +1,23 @@
+---
+interface Link {
+  label: string;
+  url: string;
+}
+
+interface Props {
+  links: Link[];
+  triggerLabel?: string;
+}
+
+const { links, triggerLabel = 'Ver demo' } = Astro.props;
+---
+<details class="demo-access">
+  <summary class="btn btn-ghost" style="justify-content:center;">{triggerLabel}</summary>
+  <div class="demo-access-menu">
+    {links.map((link) => (
+      link.url
+        ? <a href={link.url} target="_blank" rel="noopener" class="demo-access-option">{link.label}</a>
+        : <span class="demo-access-option is-disabled">{link.label} <em>próximamente</em></span>
+    ))}
+  </div>
+</details>

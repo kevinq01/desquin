@@ -1,0 +1,547 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import TechIcon from "../components/TechIcon.astro";
+import AstronautHero from "../components/AstronautHero.astro";
+import SpaceAccent from "../components/SpaceAccent.astro";
+import ProjectMedia from "../components/ProjectMedia.astro";
+import { getCollection } from "astro:content";
+
+const proyectos = (await getCollection("proyectos"))
+    .sort((a: any, b: any) => a.data.order - b.data.order)
+    .slice(0, 4);
+
+const servicios = [
+    {
+        name: "Desarrollo web",
+        desc: "Sitios y aplicaciones a medida, rápidas y listas para posicionar en buscadores.",
+    },
+    {
+        name: "Automatizaciones",
+        desc: "Procesos manuales convertidos en flujos automáticos que ahorran horas cada semana.",
+    },
+    {
+        name: "Servidores e infraestructura",
+        desc: "Configuración, despliegue y mantenimiento de servidores para que tu sistema no se caiga.",
+    },
+    {
+        name: "Bases de datos",
+        desc: "Diseño, optimización y mantenimiento de bases de datos para que tu información escale sin dolores.",
+    },
+];
+
+const tech = [
+    // Frontend & UI
+    "React",
+    "TypeScript",
+    "JavaScript",
+    "Astro",
+    "Bootstrap",
+
+    // Backend & Bases de Datos
+    "Laravel",
+    "PHP",
+    "MySQL",
+
+    // CMS & E-commerce
+    "WordPress",
+    "Elementor",
+    "WooCommerce",
+
+    // Infraestructura, DevOps y Tendencias (Clave para B2B)
+    "GitHub Actions", // Demuestra CI/CD
+    "Servidores VPS", // En lugar de solo "VPS", "Servidores" ayuda al SEO
+    "Despliegues",
+    "Integración de IA", // Mejor SEO que solo "Agentes de IA"
+];
+
+const pasos = [
+    {
+        title: "Nos cuentas qué tienes en mente",
+        desc: "Nos escribes por WhatsApp o dejas tus datos y le damos forma a tu idea.",
+    },
+    {
+        title: "Te enviamos una propuesta clara",
+        desc: "Definimos los tiempos, el costo y el alcance exacto para que todo quede transparente.",
+    },
+    {
+        title: "Desarrollamos de la mano contigo",
+        desc: "Construimos el software a tu lado. A través de reuniones y avances constantes, integramos tu retroalimentación en cada fase del desarrollo.",
+    },
+    {
+        title: "Lanzamos y te seguimos apoyando",
+        desc: "Garantizamos una puesta en marcha exitosa. Seguimos disponibles para dar mantenimiento, asegurar la estabilidad del sistema y acompañarte en su evolución.",
+    },
+];
+
+const faqs = [
+    {
+        q: "¿Cuánto cuesta desarrollar un sistema web o software a la medida con Desquin?",
+        a: "El costo depende del alcance del proyecto, ya que no usamos plantillas cerradas. Nos cuentas qué tienes en mente, analizamos tus requerimientos y te enviamos una cotización clara y detallada antes de empezar, sin cobros sorpresa.",
+    },
+    {
+        q: "¿Qué tipos de aplicaciones o páginas web pueden construir?",
+        a: "Desarrollamos soluciones digitales adaptadas a tu negocio: desde aplicaciones web con React y Laravel, e-commerce con WooCommerce, hasta sistemas de gestión internos, paneles administrativos y automatizaciones con IA. Si tienes una idea, la hacemos realidad.",
+    },
+    {
+        q: "¿Cuánto tiempo toma el desarrollo de una plataforma o sitio web?",
+        a: "El tiempo varía según la complejidad técnica. Durante nuestra primera charla evaluamos el proyecto, te damos un estimado realista y trabajamos de la mano contigo con avances constantes para que veas el progreso paso a paso.",
+    },
+    {
+        q: "¿Trabajan con clientes fuera de Colombia?",
+        a: "Sí, trabajamos de forma remota con empresas y emprendedores de cualquier lugar. Toda la comunicación y los despliegues de los servidores se coordinan de forma digital mediante videollamadas, WhatsApp y herramientas de gestión.",
+    },
+    {
+        q: "¿Qué pasa después de que entregan el software o sitio web?",
+        a: "Ponemos el sistema en marcha y seguimos disponibles. Te acompañamos en la etapa posterior con soporte continuo, mantenimiento y actualizaciones para garantizar que todo corra perfecto y evolucione con tu negocio.",
+    },
+    {
+        q: "¿Puedo contratar servicios independientes, como solo el backend, diseño o automatización?",
+        a: "Sí, nuestros servicios son flexibles. Puedes contratar módulos específicos según lo que necesite tu empresa hoy —ya sea una API en Laravel, una tienda online o integraciones— y escalar el sistema más adelante.",
+    },
+];
+
+const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+};
+---
+
+<BaseLayout
+    title="Desquin — Desarrollador de software y automatización en Colombia"
+    description="Desarrollo web, sistemas administrativos, software de reservas y gestión de excursiones, automatizaciones y bases de datos a la medida. Hablas directo con el equipo técnico."
+    jsonLd={[faqSchema]}
+>
+    <section class="hero">
+        <svg class="hero-planet" viewBox="0 0 1200 900" aria-hidden="true">
+            <defs>
+                <linearGradient
+                    id="planetLineGrad"
+                    x1="0%"
+                    y1="100%"
+                    x2="100%"
+                    y2="0%"
+                >
+                    <stop
+                        offset="0%"
+                        style="stop-color:var(--accent-purple-light)"></stop>
+                    <stop offset="50%" stop-color="#c2a4f6"></stop>
+                    <stop
+                        offset="100%"
+                        style="stop-color:var(--accent-purple-light)"></stop>
+                </linearGradient>
+                <radialGradient
+                    id="planetSurfaceGrad"
+                    cx="15%"
+                    cy="0%"
+                    r="120%"
+                >
+                    <stop
+                        offset="0%"
+                        stop-color="var(--accent-purple-dark)"
+                        stop-opacity="0.55"></stop>
+                    <stop
+                        offset="30%"
+                        stop-color="var(--bg-100)"
+                        stop-opacity="0.95"></stop>
+                    <stop offset="100%" stop-color="var(--bg-0)"></stop>
+                </radialGradient>
+                <filter
+                    id="planetWashBlur"
+                    x="-150%"
+                    y="-150%"
+                    width="400%"
+                    height="400%"
+                >
+                    <feGaussianBlur stdDeviation="95"></feGaussianBlur>
+                </filter>
+                <filter
+                    id="planetGlowBlur"
+                    x="-150%"
+                    y="-150%"
+                    width="400%"
+                    height="400%"
+                >
+                    <feGaussianBlur stdDeviation="26"></feGaussianBlur>
+                </filter>
+                <filter
+                    id="planetCoreBlur"
+                    x="-50%"
+                    y="-50%"
+                    width="200%"
+                    height="200%"
+                >
+                    <feGaussianBlur stdDeviation="2.2"></feGaussianBlur>
+                </filter>
+                <!-- Recorta el halo para que solo se proyecte hacia el espacio (por
+             encima del horizonte), no hacia la superficie del planeta. -->
+                <clipPath id="planetHorizonClip">
+                    <path
+                        d="M -250 940 A 1900 1900 0 0 1 1250 50 L 1250 -400 L -250 -400 Z"
+                    ></path>
+                </clipPath>
+            </defs>
+            <!-- Superficie sólida del planeta: oculta las estrellas debajo del
+           horizonte para que se lea como una masa real, no solo una línea. -->
+            <path
+                d="M -250 940 A 1900 1900 0 0 1 1250 50 L 1250 940 Z"
+                fill="url(#planetSurfaceGrad)"></path>
+            <g clip-path="url(#planetHorizonClip)">
+                <!-- Halo ambiental amplio y muy sutil, proyectado hacia arriba -->
+                <path
+                    d="M -250 940 A 1900 1900 0 0 1 1250 50"
+                    stroke="url(#planetLineGrad)"
+                    stroke-width="210"
+                    fill="none"
+                    filter="url(#planetWashBlur)"
+                    opacity="0.17"></path>
+                <!-- Resplandor medio alrededor del horizonte -->
+                <path
+                    d="M -250 940 A 1900 1900 0 0 1 1250 50"
+                    stroke="url(#planetLineGrad)"
+                    stroke-width="55"
+                    fill="none"
+                    filter="url(#planetGlowBlur)"
+                    opacity="0.46"></path>
+            </g>
+            <!-- Línea nítida del horizonte — el foco visual -->
+            <path
+                d="M -250 940 A 1900 1900 0 0 1 1250 50"
+                stroke="url(#planetLineGrad)"
+                stroke-width="5"
+                fill="none"
+                filter="url(#planetCoreBlur)"
+                opacity="0.9"></path>
+        </svg>
+
+        <div class="container">
+            <div class="hero-inner">
+                <span class="eyebrow"
+                    >Software a la medida &amp; IA · En línea</span
+                >
+                <h1>
+                    Construimos el <span class="text-gradient"
+                        >software a la medida</span
+                    > que tu negocio necesita
+                </h1>
+                <p class="lead">
+                    Desarrollo web, automatizaciones, servidores y bases de
+                    datos.
+                </p>
+                <div class="hero-cta-row">
+                    <a
+                        href="https://wa.me/573046738074?text=Hola%2C%20quiero%20hablar%20sobre%20un%20proyecto"
+                        target="_blank"
+                        rel="noopener"
+                        class="btn btn-whatsapp"
+                    >
+                        <svg viewBox="0 0 24 24" fill="currentColor"
+                            ><path
+                                d="M17.47 14.38c-.29-.15-1.73-.85-2-.95-.27-.1-.46-.15-.66.15-.2.29-.76.95-.93 1.14-.17.2-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.76-1.44-1.7-1.6-1.99-.17-.29-.02-.44.13-.59.13-.13.29-.34.44-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.51-.07-.15-.66-1.59-.9-2.18-.24-.57-.48-.49-.66-.5h-.56c-.2 0-.51.07-.78.37-.27.29-1.02 1-1.02 2.44s1.05 2.83 1.19 3.03c.15.2 2.07 3.16 5.02 4.43.7.3 1.25.48 1.68.62.7.22 1.34.19 1.85.11.56-.08 1.73-.71 1.98-1.39.24-.68.24-1.27.17-1.39-.07-.12-.27-.2-.56-.34ZM12.02 2.5C6.76 2.5 2.5 6.75 2.5 12c0 1.77.49 3.44 1.34 4.87L2.5 21.5l4.76-1.25a9.47 9.47 0 0 0 4.76 1.28c5.26 0 9.52-4.25 9.52-9.5S17.28 2.5 12.02 2.5Z"
+                            ></path></svg
+                        >
+                        Cuéntanos tu proyecto
+                    </a>
+                    <a href="/portafolio" class="btn-play">
+                        <span class="play-icon">
+                            <svg
+                                width="10"
+                                height="10"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                ><path d="M6 4l14 8-14 8V4z"></path></svg
+                            >
+                        </span>
+                        Ver proyectos
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-astronaut-corner">
+                <AstronautHero />
+            </div>
+
+            <div class="hero-stats">
+                <p class="hero-stats-label">Por qué trabajar con Desquin</p>
+                <div class="benefits-row">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                ><circle cx="12" cy="12" r="9"></circle><path
+                                    d="M12 7v5l3 3"></path></svg
+                            >
+                        </span>
+                        <strong>Experiencia comprobada</strong>
+                        <span>Construyendo software real, en producción</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                ><path
+                                    d="M21 11.5a8.5 8.5 0 1 1-3.8 7.1L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 17-.5"
+                                ></path></svg
+                            >
+                        </span>
+                        <strong>Soporte continuo</strong>
+                        <span>Seguimos disponibles después de entregar</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                ><path
+                                    d="M12 2 4 5v6c0 5 3.5 8.5 8 11 4.5-2.5 8-6 8-11V5l-8-3Z"
+                                ></path><path d="m9 12 2 2 4-4"></path></svg
+                            >
+                        </span>
+                        <strong>Tecnologías modernas</strong>
+                        <span>Stack actual, seguro y listo para escalar</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                ><path d="M4 6h16M4 12h16M4 18h16"
+                                ></path><circle
+                                    cx="9"
+                                    cy="6"
+                                    r="1.6"
+                                    fill="currentColor"
+                                    stroke="none"></circle><circle
+                                    cx="15"
+                                    cy="12"
+                                    r="1.6"
+                                    fill="currentColor"
+                                    stroke="none"></circle><circle
+                                    cx="7"
+                                    cy="18"
+                                    r="1.6"
+                                    fill="currentColor"
+                                    stroke="none"></circle></svg
+                            >
+                        </span>
+                        <strong>Soluciones a la medida</strong>
+                        <span>Cada sistema, diseñado para tu negocio</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="tech-marquee">
+        <div class="tech-marquee-track">
+            {
+                [...tech, ...tech].map((t) => (
+                    <span class="tech-marquee-item">
+                        <TechIcon name={t} size={20} />
+                        {t}
+                    </span>
+                ))
+            }
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="container" style="position:relative;">
+            <SpaceAccent variant="satellite" class="space-accent-services" />
+            <div class="section-head reveal">
+                <span class="eyebrow">Qué hacemos</span>
+                <h2>Equipo técnico completo</h2>
+                <p>
+                    Software a la medida, desde la primera línea de código hasta
+                    el servidor donde vive tu sistema.
+                </p>
+            </div>
+
+            <div class="grid-2">
+                {
+                    servicios.map((s, i) => (
+                        <div
+                            class="glass-panel service-card reveal"
+                            style={`transition-delay:${i * 80}ms`}
+                        >
+                            <span class="index">0{i + 1}</span>
+                            <h3>{s.name}</h3>
+                            <p>{s.desc}</p>
+                        </div>
+                    ))
+                }
+            </div>
+
+            <div style="text-align:center; margin-top:36px;">
+                <a href="/servicios" class="btn btn-ghost reveal"
+                    >Ver todos los servicios →</a
+                >
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+        <div class="container">
+            <div class="section-head reveal">
+                <span class="eyebrow">Cómo trabajamos</span>
+                <h2>De la idea al sistema en producción</h2>
+            </div>
+
+            <div class="steps-grid">
+                {
+                    pasos.map((p, i) => (
+                        <div
+                            class="glass-panel step-item reveal"
+                            style={`transition-delay:${i * 80}ms`}
+                        >
+                            <span class="step-num">0{i + 1}</span>
+                            <h3 style="font-size:1.05rem;">{p.title}</h3>
+                            <p style="font-size:0.9rem;">{p.desc}</p>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+        <div class="container" style="position:relative;">
+            <SpaceAccent variant="star" class="space-accent-portfolio" />
+            <div class="section-head reveal">
+                <span class="eyebrow">Proyectos</span>
+                <h2>Proyectos reales, en producción</h2>
+            </div>
+
+            <div class="grid-2">
+                {
+                    proyectos.map((p: any) => (
+                        <a
+                            href={`/portafolio/${p.id}`}
+                            class="glass-panel project-card reveal"
+                        >
+                            <div class="project-media">
+                                <ProjectMedia
+                                    name={p.data.name}
+                                    statusLabel={p.data.statusLabel}
+                                    video={p.data.video}
+                                    image={p.data.image}
+                                    imageAlt={p.data.imageAlt}
+                                />
+                            </div>
+                            <div class="project-body">
+                                <h3>{p.data.name}</h3>
+                                <p>{p.data.excerpt}</p>
+                            </div>
+                        </a>
+                    ))
+                }
+            </div>
+
+            <div style="text-align:center; margin-top:36px;">
+                <a href="/portafolio" class="btn btn-ghost reveal"
+                    >Ver más proyectos →</a
+                >
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+        <div class="container">
+            <div
+                class="glass-panel split-2 reveal"
+                style="padding:48px; grid-template-columns:1fr 1fr; align-items:center;"
+            >
+                <div>
+                    <span class="eyebrow">Desquin</span>
+                    <h2 style="font-size:2rem;">
+                        Desarrollo de software a tu medida, con el respaldo
+                        técnico que tu negocio necesita
+                    </h2>
+                    <p>La misión, la visión y el equipo detrás del código.</p>
+                    <a href="/nosotros" class="btn btn-ghost"
+                        >Conocer Desquin →</a
+                    >
+                </div>
+                <div
+                    style="font-family:var(--font-mono); font-size:0.85rem; color:var(--text-faint); border-left:1px solid var(--glass-border); padding-left:24px;"
+                >
+                    <p style="color:var(--text-muted); margin-bottom:14px;">
+                        Misión
+                    </p>
+                    <p>
+                        Automatizar procesos manuales y construir sistemas que
+                        optimizan la operación de tu empresa.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="faq" style="padding-top:0;">
+        <div class="container" style="position:relative;">
+            <SpaceAccent variant="satellite" class="space-accent-faq" />
+            <div class="section-head reveal">
+                <span class="eyebrow">Preguntas frecuentes</span>
+                <h2>Antes de escribirnos, esto puede servirte</h2>
+            </div>
+
+            <div class="faq-list">
+                {
+                    faqs.map((f) => (
+                        <details class="faq-item glass-panel reveal">
+                            <summary>{f.q}</summary>
+                            <p>{f.a}</p>
+                        </details>
+                    ))
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+        <div class="container" style="position:relative;">
+            <SpaceAccent variant="planet" class="space-accent-cta" />
+            <div class="cta-banner glass-panel reveal">
+                <div>
+                    <h3 style="margin-bottom:6px;">
+                        ¿Tienes un proyecto en mente?
+                    </h3>
+                    <p style="margin:0;">
+                        Cuéntanos qué necesitas y te respondemos directo por
+                        WhatsApp, sin compromiso.
+                    </p>
+                </div>
+                <a
+                    href="https://wa.me/573046738074?text=Hola%2C%20quiero%20hablar%20sobre%20un%20proyecto"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn btn-whatsapp"
+                >
+                    Hablar ahora
+                </a>
+            </div>
+        </div>
+    </section>
+</BaseLayout>

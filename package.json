@@ -1,0 +1,25 @@
+{
+  "name": "desquin-astro",
+  "version": "1.0.0",
+  "description": "Sitio de marca y portafolio de Desquin",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "keywords": [],
+  "author": "Kevin Quintero",
+  "license": "ISC",
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "iOS >= 12",
+    "Safari >= 12"
+  ],
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.2.3"
+  }
+}

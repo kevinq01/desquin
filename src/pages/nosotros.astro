@@ -1,0 +1,152 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SpaceAccent from "../components/SpaceAccent.astro";
+
+const valores = [
+    {
+        name: "Directo",
+        desc: "Hablamos claro sobre tiempos, alcance y precio. Sin letra pequeña.",
+    },
+    {
+        name: "Técnico de verdad",
+        desc: "Cada decisión de tecnología se toma pensando en que el sistema aguante — pagos, roles y automatizaciones incluidos, no solo la pantalla.",
+    },
+    {
+        name: "Acompañamiento real",
+        desc: "No entregamos y desaparecemos. Seguimos disponibles cuando el sistema ya está en producción.",
+    },
+];
+
+const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+        {
+            "@type": "ListItem",
+            position: 1,
+            name: "Inicio",
+            item: "https://desquin.com/",
+        },
+        {
+            "@type": "ListItem",
+            position: 2,
+            name: "Nosotros",
+            item: "https://desquin.com/nosotros",
+        },
+    ],
+};
+---
+
+<BaseLayout
+    title="Misión, visión y equipo técnico"
+    description="Conoce a Desquin: misión, visión y la forma en que trabajamos como el equipo técnico detrás de tu software, automatizaciones e infraestructura."
+    jsonLd={[breadcrumbSchema]}
+>
+    <section class="section" style="padding-top:56px;">
+        <div class="container" style="position:relative;">
+            <SpaceAccent variant="satellite" class="space-accent-page" />
+            <nav class="breadcrumb" aria-label="Ruta de navegación">
+                <a href="/">Inicio</a><span>/</span>
+                <span>Nosotros</span>
+            </nav>
+            <div class="section-head">
+                <span class="eyebrow">Desquin</span>
+                <h1>El equipo técnico detrás de tu producto</h1>
+                <p class="lead">
+                    Desquin nace para resolver un problema puntual: los negocios
+                    pierden tiempo y dinero en procesos manuales y sistemas que
+                    no fueron pensados para crecer. Diseñamos, construimos y
+                    mantenemos el software que lo resuelve.
+                </p>
+            </div>
+
+            <h2 class="sr-only">Misión y visión</h2>
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="glass-panel reveal" style="padding:36px;">
+                    <span class="eyebrow">Misión</span>
+                    <h3 style="margin-top:12px; font-size:1.5rem;">
+                        Automatizar procesos manuales y construir sistemas
+                        robustos
+                    </h3>
+                    <p>
+                        Desarrollamos software, automatizaciones e
+                        infraestructura a la medida de cada negocio, para que la
+                        tecnología deje de ser un obstáculo y se convierta en la
+                        ventaja competitiva.
+                    </p>
+                </div>
+                <div class="glass-panel reveal" style="padding:36px;">
+                    <span class="eyebrow">Visión</span>
+                    <h3 style="margin-top:12px; font-size:1.5rem;">
+                        Ser el equipo técnico de confianza de cada cliente que
+                        atendemos
+                    </h3>
+                    <p>
+                        Queremos ser la opción a la que se vuelve cada vez que
+                        hay un problema técnico por resolver — no un proveedor
+                        de un solo proyecto, sino un aliado de largo plazo.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section-head reveal" style="margin-top:64px;">
+                <span class="eyebrow">Cómo trabajamos</span>
+                <h2>Tres principios que no negociamos</h2>
+            </div>
+
+            <div class="grid-3" style="margin-bottom:56px;">
+                {
+                    valores.map((v, i) => (
+                        <div
+                            class="glass-panel service-card reveal"
+                            style={`transition-delay:${i * 80}ms`}
+                        >
+                            <span class="index">0{i + 1}</span>
+                            <h3 style="font-size:1.1rem;">{v.name}</h3>
+                            <p>{v.desc}</p>
+                        </div>
+                    ))
+                }
+            </div>
+
+            <div
+                class="glass-panel reveal"
+                style="padding:32px; font-family:var(--font-mono); font-size:0.85rem; color:var(--text-faint); margin-bottom:56px;"
+            >
+                <span
+                    class="eyebrow"
+                    style="margin-bottom:10px; display:inline-flex;"
+                    >Origen</span
+                >
+                <p style="color:var(--text-muted); margin:0;">
+                    Desquin fue fundada por Kevin Quintero, Ingeniero de
+                    Sistemas especializado en desarrollo de software,
+                    automatización e infraestructura, con sede en Antioquia,
+                    Colombia, como respuesta a una necesidad concreta: negocios
+                    que necesitaban sistemas hechos a su medida y no plantillas
+                    genéricas. Hoy esos sistemas gestionan pagos, roles y
+                    procesos reales en producción.
+                </p>
+            </div>
+
+            <div class="cta-banner glass-panel reveal">
+                <div>
+                    <h3 style="margin-bottom:6px;">
+                        ¿Encajamos con lo que necesitas?
+                    </h3>
+                    <p style="margin:0;">
+                        Cuéntanos tu caso y te decimos cómo lo resolveríamos.
+                    </p>
+                </div>
+                <a
+                    href="https://wa.me/573046738074?text=Hola%2C%20quiero%20conocer%20m%C3%A1s%20sobre%20Desquin"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn btn-whatsapp"
+                >
+                    Hablar por WhatsApp
+                </a>
+            </div>
+        </div>
+    </section>
+</BaseLayout>
