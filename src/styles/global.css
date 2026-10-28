@@ -47,6 +47,11 @@
 
 html {
   scroll-behavior: smooth;
+  /* iOS Safari ignora overflow-x:hidden solo en <body>: deja que el planeta
+     del hero ensanche la página, y el navegador "hace zoom" para encajarla
+     (las imágenes se ven cada vez más grandes al bajar). `clip` recorta el
+     eje X sin crear contenedor de scroll, así que no rompe el sticky. */
+  overflow-x: clip;
   /* NO overflow-x:hidden aquí: rompe position:sticky del header (convierte
      a html en su propio contenedor de scroll). El overflow-x:hidden de
      body ya contiene el desborde horizontal sin ese efecto secundario. */
@@ -58,6 +63,7 @@ body {
      esto evita que ese desborde, sumado al parallax, abra/cierre el scroll
      horizontal al mover el mouse (lo que hacía "saltar" el fondo de estrellas). */
   overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
