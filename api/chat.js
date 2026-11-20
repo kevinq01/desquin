@@ -19,6 +19,7 @@ REGLAS
 - Si la persona quiere hablar con alguien, cotizar o contratar, termina invitándola a usar el botón de WhatsApp del chat.`;
 
 const ALLOWED_ORIGINS = [
+  /^https:\/\/(www\.)?desquin\.com$/,
   /^https:\/\/desquin\.vercel\.app$/,
   /^https:\/\/desquin-[a-z0-9-]+\.vercel\.app$/,
   /^http:\/\/localhost(:\d+)?$/,

@@ -23,7 +23,7 @@ const gallery = projectGallery(entry.id, name, entry.data.gallery);
 const waHref = `https://wa.me/573046738074?text=${encodeURIComponent(whatsappMessage)}`;
 
 const { seoTitle, faq, status } = entry.data;
-const pageUrl = `https://desquin.vercel.app/portafolio/${entry.id}`;
+const pageUrl = `https://desquin.com/portafolio/${entry.id}`;
 const description = excerpt.length > 160 ? `${excerpt.slice(0, 157)}...` : excerpt;
 const cover = gallery[0]?.src;
 
@@ -38,8 +38,8 @@ const softwareSchema = {
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   inLanguage: 'es',
-  author: { '@id': 'https://desquin.vercel.app/#organization' },
-  publisher: { '@id': 'https://desquin.vercel.app/#organization' },
+  author: { '@id': 'https://desquin.com/#organization' },
+  publisher: { '@id': 'https://desquin.com/#organization' },
   ...(cover ? { image: new URL(cover.src, Astro.site).href } : {}),
   ...(status === 'disponible'
     ? {
@@ -47,7 +47,7 @@ const softwareSchema = {
           '@type': 'Offer',
           availability: 'https://schema.org/InStock',
           priceCurrency: 'COP', // sin "price": se cotiza a la medida; agregarlo aquí si algún día hay precio fijo
-          seller: { '@id': 'https://desquin.vercel.app/#organization' },
+          seller: { '@id': 'https://desquin.com/#organization' },
           url: pageUrl,
         },
       }
@@ -69,9 +69,9 @@ const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://desquin.vercel.app/' },
-    { '@type': 'ListItem', position: 2, name: 'Proyectos', item: 'https://desquin.vercel.app/portafolio' },
-    { '@type': 'ListItem', position: 3, name, item: `https://desquin.vercel.app/portafolio/${entry.id}` },
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://desquin.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Proyectos', item: 'https://desquin.com/portafolio' },
+    { '@type': 'ListItem', position: 3, name, item: `https://desquin.com/portafolio/${entry.id}` },
   ],
 };
 ---

@@ -29,7 +29,11 @@ npm run build
 
 Esto genera la carpeta `dist/` con HTML, CSS y JS ya listos — es lo único que subes al hosting.
 
-## Publicar en Hostinger / HostGator
+## Publicar (Vercel)
+
+El sitio se despliega en Vercel desde GitHub (`git push` a `master`). El dominio principal es `https://desquin.com`; `www.desquin.com` y `desquin.vercel.app` deben redirigir a él (Vercel → Settings → Domains).
+
+## Publicar en Hostinger / HostGator (alternativa)
 
 1. Corre `npm run build` en tu computador (Node no hace falta en el servidor, el sitio ya queda 100% estático).
 2. Sube **todo el contenido** de `dist/` (no la carpeta en sí, lo de adentro) a `public_html/` por FTP o el administrador de archivos del panel.
