@@ -3,7 +3,7 @@
 //   GROQ_API_KEY    -> usa Groq (Llama 3.3 70B)   [recomendado]
 //   GEMINI_API_KEY  -> usa Google Gemini (respaldo si no hay Groq)
 
-const SYSTEM_PROMPT = `Eres el "Agente del espacio", el asistente virtual de Desquin, un estudio colombiano de software a la medida. Respondes en español, con tono cercano, claro y breve (máximo 3 frases, sin listas largas, sin markdown).
+const SYSTEM_PROMPT = `Eres "Lounis", el asistente virtual de Desquin, un estudio colombiano de software a la medida. Respondes en español, con tono cercano, claro y breve (máximo 3 frases, sin listas largas, sin markdown).
 
 SOBRE DESQUIN
 - Servicios: desarrollo web (sitios, tiendas en línea, aplicaciones), automatizaciones e integraciones, servidores e infraestructura (despliegue, monitoreo, migraciones, copias de seguridad) y bases de datos (diseño, optimización, migración). Se pueden contratar por separado.
@@ -54,13 +54,13 @@ async function askGroq(messages) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
     body: JSON.stringify({
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
       messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
       temperature: 0.4,
       max_tokens: 300,
     }),
   });
-  if (!r.ok) throw new Error(`groq ${r.status}`);
+  if (!r.ok) throw new Error(`groq ${r.status}: ${(await r.text()).slice(0, 300)}`);
   const data = await r.json();
   return data.choices?.[0]?.message?.content?.trim();
 }
@@ -79,7 +79,7 @@ async function askGemini(messages) {
       }),
     },
   );
-  if (!r.ok) throw new Error(`gemini ${r.status}`);
+  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 300)}`);
   const data = await r.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 }
@@ -104,7 +104,8 @@ export default async function handler(req, res) {
     else return res.status(503).json({ error: 'no-key' });
     if (!text) throw new Error('empty');
     return res.status(200).json({ text: text.slice(0, 900) });
-  } catch {
+  } catch (err) {
+    console.error('chat upstream error:', err?.message || err);
     return res.status(502).json({ error: 'upstream' });
   }
 }

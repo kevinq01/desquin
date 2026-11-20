@@ -708,8 +708,9 @@ p {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent-2);
+  background: linear-gradient(135deg, #7238fb, #8c5efc);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(140, 94, 252, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -719,7 +720,7 @@ p {
 
 .benefit-item:hover .benefit-icon {
   transform: translateY(-2px);
-  box-shadow: 0 0 18px var(--accent-soft);
+  box-shadow: 0 0 22px rgba(140, 94, 252, 0.6);
 }
 
 .benefit-icon svg {
@@ -734,7 +735,7 @@ p {
   color: var(--text);
 }
 
-.benefit-item span {
+.benefit-item > span:not(.benefit-icon) {
   font-size: 0.82rem;
   color: var(--text-faint);
   line-height: 1.4;
@@ -1007,8 +1008,9 @@ p {
 }
 
 .space-accent-portfolio {
-  top: -14px;
-  left: 4%;
+  top: -34px;
+  left: auto;
+  right: 6%;
   animation-duration: 8.2s;
   animation-delay: 0.15s;
 }
@@ -1107,8 +1109,9 @@ p {
 
 .service-card .index {
   font-family: var(--font-mono);
-  color: var(--accent-2);
-  font-size: 0.85rem;
+  color: #9566ff;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .service-card ul {
@@ -1735,8 +1738,8 @@ p {
   font-family: var(--font-headline);
   font-size: 2rem;
   font-weight: 800;
-  color: var(--accent-2);
-  opacity: 0.5;
+  color: #9566ff;
+  opacity: 0.95;
   display: block;
   margin-bottom: 10px;
 }

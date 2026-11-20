@@ -1,5 +1,5 @@
 ---
-// Widget de chat "Agente del espacio".
+// Widget de chat "Lounis".
 // Flujo: reglas/palabras clave (src/lib/chatbot-data.ts) -> si no hay coincidencia
 // confiable, IA vía /api/chat (api/chat.js) -> si falla, ofrece WhatsApp.
 ---
@@ -11,7 +11,7 @@
     aria-haspopup="dialog"
     aria-expanded="false"
     aria-controls="chatbotWindow"
-    aria-label="Abrir el agente del espacio"
+    aria-label="Chatear con Lounis"
   >
     <svg class="chatbot-launcher-icon chatbot-icon-open" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="20" cy="20" r="17" fill="#eceafa" />
@@ -36,8 +36,8 @@
         </svg>
       </div>
       <div>
-        <p id="chatbotTitle" class="chatbot-title">Agente del espacio</p>
-        <p class="chatbot-subtitle">Resolviendo dudas en órbita</p>
+        <p id="chatbotTitle" class="chatbot-title">Lounis</p>
+        <p class="chatbot-subtitle">Tu asistente de Desquin</p>
       </div>
       <a class="chatbot-wa" id="chatbotWa" href="#" target="_blank" rel="noopener" aria-label="Hablar con una persona por WhatsApp" title="Hablar por WhatsApp">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.47 14.38c-.29-.15-1.73-.85-2-.95-.27-.1-.46-.15-.66.15-.2.29-.76.95-.93 1.14-.17.2-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.76-1.44-1.7-1.6-1.99-.17-.29-.02-.44.13-.59.13-.13.29-.34.44-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.51-.07-.15-.66-1.59-.9-2.18-.24-.57-.48-.49-.66-.5h-.56c-.2 0-.51.07-.78.37-.27.29-1.02 1-1.02 2.44s1.05 2.83 1.19 3.03c.15.2 2.07 3.16 5.02 4.43.7.3 1.25.48 1.68.62.7.22 1.34.19 1.85.11.56-.08 1.73-.71 1.98-1.39.24-.68.24-1.27.17-1.39-.07-.12-.27-.2-.56-.34ZM12.02 2.5C6.76 2.5 2.5 6.75 2.5 12c0 1.77.49 3.44 1.34 4.87L2.5 21.5l4.76-1.25a9.47 9.47 0 0 0 4.76 1.28c5.26 0 9.52-4.25 9.52-9.5S17.28 2.5 12.02 2.5Z"/></svg>
@@ -61,7 +61,7 @@
   import type { BotAnswer, QuickReply, ChatTurn } from '../lib/chatbot-data';
 
   const WHATSAPP_NUMBER = '573046738074';
-  const GREETING = 'Hola, soy el agente del espacio de Desquin 🚀. Elige una pregunta o escribe la tuya.';
+  const GREETING = 'Hola, soy Lounis 🌙, tu asistente virtual de Desquin. Elige una pregunta o escribe la tuya.';
   const FALLBACK = 'No estoy seguro de cómo responder eso. Mejor cuéntaselo directo al equipo por WhatsApp y te ayudan enseguida.';
   const WA_LABEL = 'Hablar por WhatsApp';
 
@@ -99,7 +99,7 @@
     function showTyping() {
       const p = document.createElement('p');
       p.className = 'chatbot-msg chatbot-msg-bot chatbot-typing';
-      p.setAttribute('aria-label', 'El agente está escribiendo');
+      p.setAttribute('aria-label', 'Lounis está escribiendo');
       p.innerHTML = '<span></span><span></span><span></span>';
       log!.appendChild(p);
       log!.scrollTop = log!.scrollHeight;

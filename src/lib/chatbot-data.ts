@@ -1,4 +1,4 @@
-// Contenido y resolución de respuestas del "Agente del espacio".
+// Contenido y resolución de respuestas de "Lounis".
 // Hoy es 100% local (reglas + palabras clave), sin llamadas de red.
 // Ver `resolveAnswer` para el punto de extensión hacia una IA real.
 
