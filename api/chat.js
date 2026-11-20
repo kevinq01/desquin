@@ -54,10 +54,11 @@ async function askGroq(messages) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
     body: JSON.stringify({
-      model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
       messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
       temperature: 0.4,
-      max_tokens: 300,
+      max_tokens: 800, // los modelos gpt-oss gastan tokens en razonar antes de responder
+      reasoning_effort: 'low',
     }),
   });
   if (!r.ok) throw new Error(`groq ${r.status}: ${(await r.text()).slice(0, 300)}`);
