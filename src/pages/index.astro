@@ -178,6 +178,34 @@ const faqSchema = {
                 >
                     <feGaussianBlur stdDeviation="2.2"></feGaussianBlur>
                 </filter>
+                <!-- Difumina la masa del planeta hacia abajo: sin corte recto donde
+             termina el SVG, la superficie se funde con el fondo. -->
+                <linearGradient
+                    id="planetFadeGrad"
+                    gradientUnits="userSpaceOnUse"
+                    x1="0"
+                    y1="260"
+                    x2="0"
+                    y2="820"
+                >
+                    <stop offset="0%" stop-color="#fff"></stop>
+                    <stop offset="100%" stop-color="#000"></stop>
+                </linearGradient>
+                <mask
+                    id="planetFadeMask"
+                    maskUnits="userSpaceOnUse"
+                    x="-400"
+                    y="-500"
+                    width="2000"
+                    height="1500"
+                >
+                    <rect
+                        x="-400"
+                        y="-500"
+                        width="2000"
+                        height="1500"
+                        fill="url(#planetFadeGrad)"></rect>
+                </mask>
                 <!-- Recorta el halo para que solo se proyecte hacia el espacio (por
              encima del horizonte), no hacia la superficie del planeta. -->
                 <clipPath id="planetHorizonClip">
@@ -190,7 +218,8 @@ const faqSchema = {
            horizonte para que se lea como una masa real, no solo una línea. -->
             <path
                 d="M -250 940 A 1900 1900 0 0 1 1250 50 L 1250 940 Z"
-                fill="url(#planetSurfaceGrad)"></path>
+                fill="url(#planetSurfaceGrad)"
+                mask="url(#planetFadeMask)"></path>
             <g clip-path="url(#planetHorizonClip)">
                 <!-- Halo ambiental amplio y muy sutil, proyectado hacia arriba -->
                 <path

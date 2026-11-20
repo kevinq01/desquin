@@ -1,4 +1,4 @@
-﻿// Contenido y resolución de respuestas del "Agente del espacio".
+// Contenido y resolución de respuestas del "Agente del espacio".
 // Hoy es 100% local (reglas + palabras clave), sin llamadas de red.
 // Ver `resolveAnswer` para el punto de extensión hacia una IA real.
 
@@ -13,25 +13,28 @@ interface Topic {
   keywords: string[];
   answer: string;
   followUps?: string[];
+  offerWhatsApp?: boolean;
 }
 
 export interface BotAnswer {
   text: string;
   quickReplies?: QuickReply[];
+  /** Ofrece el botón de WhatsApp junto a la respuesta. */
+  offerWhatsApp?: boolean;
 }
 
 const topics: Topic[] = [
   {
     id: 'precio',
     label: '¿Cuánto cuesta un proyecto?',
-    keywords: ['precio', 'cuesta', 'costo', 'valor', 'presupuesto', 'cotizar', 'cotizacion', 'tarifa', 'cuanto vale'],
+    keywords: ['precio', 'cuesta', 'costo', 'valor', 'presupuesto', 'cotizar', 'cotizacion', 'tarifa', 'cuanto vale', 'cuanto cobran', 'cuanto cuesta', 'cuanto sale'],
     answer: 'Depende del alcance — no manejamos paquetes cerrados. Nos cuentas qué necesitas y te damos un presupuesto claro antes de empezar, sin costos ocultos.',
     followUps: ['tiempo', 'servicios'],
   },
   {
     id: 'tiempo',
     label: '¿Cuánto tiempo toma?',
-    keywords: ['tiempo', 'demora', 'cuanto tarda', 'plazo', 'entrega', 'cuando'],
+    keywords: ['tiempo', 'demora', 'cuanto tarda', 'plazo', 'entrega', 'cuanto se demoran'],
     answer: 'Varía según la complejidad. En la primera conversación te damos un tiempo estimado realista, y te mantenemos informado del avance durante todo el proceso.',
     followUps: ['precio', 'proceso'],
   },
@@ -52,7 +55,7 @@ const topics: Topic[] = [
   {
     id: 'servicio-automatizacion',
     label: 'Automatizaciones',
-    keywords: ['automatizacion', 'automatizar', 'bot', 'integracion', 'api', 'proceso manual'],
+    keywords: ['automatizacion', 'automatizar', 'automatizaciones', 'integracion', 'integraciones', 'proceso manual', 'chatbot'],
     answer: 'Notificaciones automáticas, integraciones entre sistemas, reportes automáticos y bots para tareas internas repetitivas.',
     followUps: ['precio'],
   },
@@ -66,7 +69,7 @@ const topics: Topic[] = [
   {
     id: 'servicio-bd',
     label: 'Bases de datos',
-    keywords: ['base de datos', 'bd', 'sql', 'consulta lenta', 'migrar datos'],
+    keywords: ['base de datos', 'bases de datos', 'sql', 'mysql', 'consulta lenta', 'migrar datos'],
     answer: 'Diseño desde cero, optimización de consultas lentas, migración entre motores y paneles de datos.',
     followUps: ['precio'],
   },
@@ -97,17 +100,46 @@ const topics: Topic[] = [
     followUps: ['precio', 'tiempo'],
   },
   {
+    id: 'erp-nomina',
+    label: '¿Venden un ERP de nómina?',
+    keywords: ['erp', 'nomina', 'talento humano', 'recursos humanos', 'kactus', 'sap', 'liquidar nomina', 'desquin nova'],
+    answer: 'Sí. Desquin Nova es un ERP de nómina y talento humano para Colombia, disponible para la venta: empleados, contratos, vacaciones, aprobaciones, liquidación de nómina, desprendibles y reportes. También tenemos FlowerBooll, un ERP de ventas, compras y nómina. Mira los detalles en la sección Proyectos.',
+    followUps: ['precio'],
+  },
+  {
     id: 'proyecto-a-medida',
     label: '¿Pueden crear cualquier tipo de proyecto?',
-    keywords: ['inventario', 'ventas en linea', 'tienda en linea', 'crm', 'sistema a la medida', 'cualquier proyecto', 'idea', 'gestion'],
+    keywords: ['inventario', 'ventas en linea', 'tienda en linea', 'crm', 'sistema a la medida', 'software a la medida', 'cualquier proyecto', 'tengo una idea'],
     answer: 'Sí. Construimos software a la medida de lo que tengas en mente: sistemas de inventario, plataformas de ventas en línea, paneles administrativos, lo que tu negocio necesite. Cuéntanos tu idea y te damos una cotización clara.',
     followUps: ['precio'],
+  },
+  {
+    id: 'saludo',
+    label: 'Hola',
+    keywords: ['hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches', 'hey', 'saludos'],
+    answer: '¡Hola! 👋 Cuéntame qué necesitas: un sistema a la medida, una web, una automatización… o elige una de las preguntas de abajo.',
+  },
+  {
+    id: 'gracias',
+    label: 'Gracias',
+    keywords: ['gracias', 'muchas gracias', 'listo gracias', 'perfecto gracias', 'vale gracias'],
+    answer: '¡Con gusto! Si más adelante quieres avanzar con tu proyecto, aquí estamos.',
+    offerWhatsApp: true,
+  },
+  {
+    id: 'humano',
+    label: 'Hablar con una persona',
+    keywords: ['hablar con alguien', 'hablar con una persona', 'asesor', 'humano', 'whatsapp', 'contactar', 'contacto', 'llamar', 'quiero contratar', 'agendar', 'reunion'],
+    answer: 'Claro, te pasamos con el equipo. Toca el botón de WhatsApp y cuéntanos tu necesidad: respondemos directamente.',
+    offerWhatsApp: true,
   },
 ];
 
 const topicsById: Record<string, Topic> = Object.fromEntries(topics.map((t) => [t.id, t]));
 
-const rootMenuIds = ['precio', 'servicios', 'proyecto-a-medida', 'tiempo', 'cobertura', 'soporte'];
+// Pocas sugerencias, las de mayor intención de compra. El resto de temas se
+// alcanza escribiendo o con los seguimientos de cada respuesta.
+const rootMenuIds = ['precio', 'servicios', 'erp-nomina'];
 
 export function getRootQuickReplies(): QuickReply[] {
   return rootMenuIds
@@ -122,7 +154,9 @@ export function getAnswerForTopic(id: string): BotAnswer | null {
   if (!topic) return null;
   return {
     text: topic.answer,
+    offerWhatsApp: topic.offerWhatsApp,
     quickReplies: (topic.followUps ?? [])
+      .slice(0, 2)
       .map((fid) => topicsById[fid])
       .filter((t): t is Topic => Boolean(t))
       .map((t) => ({ id: t.id, label: t.label })),
@@ -140,44 +174,53 @@ function normalize(str: string): string {
 }
 
 /**
- * PUNTO DE EXTENSIÓN — IA FUTURA
- * Hoy: 100% local y síncrono (matching de palabras clave). El widget ya
- * llama esta función con `await`, así que el día que haya un backend de
- * IA real, basta con reemplazar el cuerpo por un `fetch` a un endpoint
- * que devuelva algo compatible con `BotAnswer` — sin tocar el componente.
+ * Respuesta local por palabras clave (coincidencia por palabra completa).
+ * Devuelve null si no hay una coincidencia confiable: en ese caso el widget
+ * consulta la IA (/api/chat) y, si falla, ofrece WhatsApp.
  *
- * Modelos gratuitos/código abierto a considerar cuando haya token (no
- * requiere GPU propia, son APIs con capa gratuita):
- * - Groq (https://console.groq.com) — Llama 3.1/3.3 y otros modelos
- *   abiertos corriendo muy rápido, con free tier generoso. API compatible
- *   con el formato de OpenAI.
- * - OpenRouter (https://openrouter.ai) — agrega varios modelos abiertos
- *   con variantes ":free" (ej. Llama, Mistral, Gemma) sin costo.
- * - Google AI Studio / Gemini API — capa gratuita con límite de peticiones
- *   por minuto, no es open-source pero es gratis para empezar.
- *
- * El backend NO puede vivir aquí directamente porque el sitio es Astro
- * estático (sin adapter en astro.config.mjs) — haría falta un endpoint
- * aparte (Cloudflare Worker, función serverless, etc.) que reciba el
- * mensaje, llame al modelo elegido con el contexto de Desquin (servicios,
- * precios, FAQs) y devuelva `{ text, quickReplies? }`. Ese endpoint es
- * justo lo que reemplazaría el `fetch` de este comentario.
+ * Confianza: puntaje >= 2, o puntaje 1 en una frase corta (<= 6 palabras).
+ * Una frase larga con una sola palabra clave suele ser una pregunta más
+ * específica de lo que cubre el guion, y se la dejamos a la IA.
  */
-export async function resolveAnswer(userText: string): Promise<BotAnswer | null> {
+export function resolveAnswer(userText: string): BotAnswer | null {
   const normalized = normalize(userText);
   if (!normalized) return null;
+  const padded = ` ${normalized} `;
+  const wordCount = normalized.split(' ').length;
 
   let best: { topic: Topic; score: number } | null = null;
   for (const topic of topics) {
     let score = 0;
     for (const kw of topic.keywords) {
       const nkw = normalize(kw);
-      if (nkw && normalized.includes(nkw)) {
-        score += nkw.split(' ').length;
-      }
+      if (nkw && padded.includes(` ${nkw} `)) score += nkw.split(' ').length;
     }
     if (score > 0 && (!best || score > best.score)) best = { topic, score };
   }
 
-  return best ? getAnswerForTopic(best.topic.id) : null;
+  if (!best) return null;
+  if (best.score < 2 && wordCount > 6) return null;
+  return getAnswerForTopic(best.topic.id);
+}
+
+export type ChatTurn = { role: 'user' | 'assistant'; content: string };
+
+/** Consulta la IA a través del endpoint serverless. Devuelve null si falla. */
+export async function askAI(history: ChatTurn[]): Promise<string | null> {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history.slice(-6) }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return typeof data.text === 'string' && data.text.trim() ? data.text.trim() : null;
+  } catch {
+    return null;
+  }
 }

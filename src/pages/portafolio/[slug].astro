@@ -22,6 +22,49 @@ const { name, excerpt, statusLabel, tech, liveUrl, ctaLabel, demoLinks, flow, fl
 const gallery = projectGallery(entry.id, name, entry.data.gallery);
 const waHref = `https://wa.me/573046738074?text=${encodeURIComponent(whatsappMessage)}`;
 
+const { seoTitle, faq, status } = entry.data;
+const pageUrl = `https://desquin.vercel.app/portafolio/${entry.id}`;
+const description = excerpt.length > 160 ? `${excerpt.slice(0, 157)}...` : excerpt;
+const cover = gallery[0]?.src;
+
+// Datos estructurados: SoftwareApplication con oferta (disponible para la venta)
+// y FAQPage cuando el proyecto declara preguntas frecuentes.
+const softwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name,
+  description: excerpt,
+  url: pageUrl,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'es',
+  author: { '@id': 'https://desquin.vercel.app/#organization' },
+  publisher: { '@id': 'https://desquin.vercel.app/#organization' },
+  ...(cover ? { image: new URL(cover.src, Astro.site).href } : {}),
+  ...(status === 'disponible'
+    ? {
+        offers: {
+          '@type': 'Offer',
+          availability: 'https://schema.org/InStock',
+          priceCurrency: 'COP', // sin "price": se cotiza a la medida; agregarlo aquí si algún día hay precio fijo
+          seller: { '@id': 'https://desquin.vercel.app/#organization' },
+          url: pageUrl,
+        },
+      }
+    : {}),
+};
+const faqSchema = faq?.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faq.map((f: { q: string; a: string }) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    }
+  : null;
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -32,7 +75,12 @@ const breadcrumbSchema = {
   ],
 };
 ---
-<BaseLayout title={name} description={excerpt} waMessage={whatsappMessage} jsonLd={[breadcrumbSchema]}>
+<BaseLayout
+  title={seoTitle ?? name}
+  description={description}
+  waMessage={whatsappMessage}
+  jsonLd={[breadcrumbSchema, softwareSchema, ...(faqSchema ? [faqSchema] : [])]}
+>
   <section class="section" style="padding-top:48px;">
     <div class="container" style="max-width: 1020px;">
       <nav class="breadcrumb" aria-label="Ruta de navegación">
@@ -55,6 +103,18 @@ const breadcrumbSchema = {
           <div class="glass-panel reveal" style="padding:28px; margin-top:8px;">
             <Content />
           </div>
+
+          {faq && faq.length > 0 && (
+            <div class="glass-panel reveal" style="padding:28px; margin-top:24px;">
+              <h2 style="font-size:1.4rem; margin-bottom:16px;">Preguntas frecuentes</h2>
+              {faq.map((f: { q: string; a: string }) => (
+                <details style="padding:12px 0; border-top:1px solid rgba(255,255,255,0.08);">
+                  <summary style="cursor:pointer; font-weight:600;">{f.q}</summary>
+                  <p style="margin-top:8px;">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          )}
         </div>
 
         <div class="glass-panel reveal" style="padding:28px; position:sticky; top:96px;">

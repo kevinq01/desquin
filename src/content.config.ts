@@ -5,6 +5,8 @@ const proyectos = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/proyectos' }),
   schema: ({ image }) => z.object({
     name: z.string(),
+    seoTitle: z.string().optional(),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
     order: z.number().default(99),
     excerpt: z.string(),
     status: z.enum(['disponible', 'en-operacion', 'en-desarrollo', 'sistema']),
