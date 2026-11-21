@@ -37,7 +37,7 @@ const breadcrumbSchema = {
         {proyectos.map((p, i) => (
           <a href={`/portafolio/${p.id}`} class="glass-panel project-card reveal" style={`transition-delay:${i * 60}ms`}>
             <div class="project-media">
-              <ProjectMedia name={p.data.name} statusLabel={p.data.statusLabel} image={projectCover(p.id, p.data.name, p.data.gallery)?.src} />
+              <ProjectMedia name={p.data.name} statusLabel={p.data.statusLabel} image={projectCover(p.id, p.data.name, p.data.gallery)?.src} eager={i < 2} />
             </div>
             <div class="project-body">
               <h3>{p.data.name}</h3>

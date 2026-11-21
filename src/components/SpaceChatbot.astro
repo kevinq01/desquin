@@ -199,7 +199,11 @@
         appendMessage('bot', GREETING);
         renderQuickReplies(getRootQuickReplies());
       }
-      requestAnimationFrame(() => input!.focus());
+      fitViewport();
+      // En móvil no se enfoca solo: abriría el teclado de inmediato.
+      if (!window.matchMedia('(max-width: 480px)').matches) {
+        requestAnimationFrame(() => input!.focus());
+      }
     }
 
     function closeChat() {
@@ -215,6 +219,20 @@
       win!.addEventListener('transitionend', onEnd);
       launcher!.focus();
     }
+
+    // Móvil: ajusta la ventana al área visible (sin teclado) para que el campo
+    // de texto siga a la vista cuando se abre el teclado.
+    const vv = window.visualViewport;
+    function fitViewport() {
+      if (!vv || !isOpen) return;
+      const root = document.documentElement.style;
+      root.setProperty('--chatbot-vh', `${vv.height}px`);
+      root.setProperty('--chatbot-top', `${vv.offsetTop}px`);
+      log!.scrollTop = log!.scrollHeight;
+    }
+    vv?.addEventListener('resize', fitViewport);
+    vv?.addEventListener('scroll', fitViewport);
+    input.addEventListener('focus', () => setTimeout(fitViewport, 150));
 
     launcher.addEventListener('click', () => (isOpen ? closeChat() : openChat()));
     closeBtn.addEventListener('click', closeChat);

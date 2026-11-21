@@ -1,3 +1,45 @@
+/* Fuentes alojadas localmente (antes: Google Fonts + Fontshare, 2 CSS que
+   bloqueaban el render y 2 orígenes extra). Subconjunto latino (incluye
+   acentos y ñ). Plus Jakarta Sans y JetBrains Mono son fuentes variables:
+   un solo archivo cubre todos los pesos. */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-fdb05bf0.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-480c0625.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'General Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/general-sans-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'General Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/general-sans-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'General Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/general-sans-700.woff2') format('woff2');
+}
+
 /* ==========================================================
    DESQUIN — Design tokens
    Paleta: control de misión / HUD de software, no decorativa.
@@ -191,31 +233,19 @@ p {
   overflow: hidden;
 }
 
-.star {
+/* Estrellas estáticas: 3 capas (1px, 2px, 3px) con box-shadow, ver
+   BaseLayout. Sin animación: una sola capa de composición por tamaño. */
+.star-layer {
   position: absolute;
-  background: white;
+  top: 0;
+  left: 0;
   border-radius: 50%;
-  animation: dq-blink 3s infinite alternate ease-in-out;
+  background: transparent;
 }
 
-@keyframes dq-blink {
-
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .star {
-    animation: none;
-    opacity: 0.6;
-  }
-}
+.star-layer-1 { width: 1px; height: 1px; }
+.star-layer-2 { width: 2px; height: 2px; }
+.star-layer-3 { width: 3px; height: 3px; }
 
 .section {
   padding: 96px 0;
@@ -588,6 +618,31 @@ p {
    son ~1920px (donde debía leerse igual que antes, 130vw) y ~375px (donde
    debía leerse igual que antes, 220vw) — la fórmula interpola entre esos
    dos puntos para cualquier ancho intermedio. */
+/* Contención del planeta DENTRO de su propio contenedor (no depende de
+   overflow-x en <html>/<body>, que iOS < 16 ignora). El clip se extiende
+   1000px arriba y abajo para no cortar el difuminado en vertical; en
+   horizontal recorta exactamente al ancho de la pantalla. overflow:hidden
+   (no clip) funciona en todos los iOS. El "anchor" reproduce la caja del
+   hero, así las posiciones del planeta no cambian. */
+.hero-planet-clip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1000px;
+  bottom: -1000px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-planet-anchor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1000px;
+  bottom: 1000px;
+}
+
 .hero-planet {
   position: absolute;
   top: -6%;
@@ -642,6 +697,21 @@ p {
       rgba(9, 9, 11, 0.55) 0%,
       rgba(9, 9, 11, 0.28) 45%,
       transparent 75%);
+}
+
+/* En pantallas angostas el scrim (-48px a cada lado) sobresalía 24px del borde
+   derecho de la pantalla (el padding del contenedor es 24px) y ensanchaba la
+   página. Se recorta su caja al borde de la pantalla y se compensa el gradiente
+   (centro +12px, radios iguales a los de la caja original) para que se vea
+   exactamente igual. */
+@media (max-width: 760px) {
+  .hero-inner::before {
+    right: -24px;
+    background: radial-gradient(ellipse calc(0.7071 * (100% + 24px)) 70.71% at calc(50% + 12px) 50%,
+        rgba(9, 9, 11, 0.55) 0%,
+        rgba(9, 9, 11, 0.28) 45%,
+        transparent 75%);
+  }
 }
 
 .hero .eyebrow {
@@ -1209,7 +1279,7 @@ p {
 .status-pill {
   position: absolute;
   top: 12px;
-  left: 12px;
+  right: 12px;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.68rem;
@@ -2051,16 +2121,15 @@ p {
 
 .chatbot-quick-replies {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 2px 18px 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 34%;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 94, 252, 0.55) transparent;
   flex-shrink: 0;
-}
-
-.chatbot-quick-replies::-webkit-scrollbar {
-  display: none;
 }
 
 .chatbot-quick-replies:empty {
@@ -2072,7 +2141,8 @@ p {
   font-size: 0.78rem;
   padding: 7px 14px;
   flex: 0 0 auto;
-  white-space: nowrap;
+  max-width: 100%;
+  text-align: left;
   border-radius: 999px;
   border: 1px solid var(--glass-border);
   background: transparent;
@@ -2126,12 +2196,38 @@ body.chatbot-is-open .wa-float {
 }
 
 @media (max-width: 480px) {
+  /* Pantalla completa. La altura/posición las ajusta el script con
+     visualViewport para que el teclado no tape el campo de texto. */
   .chatbot-window {
-    left: 12px;
-    right: 12px;
+    top: var(--chatbot-top, 0px);
+    left: 0;
+    right: 0;
+    bottom: auto;
     width: auto;
-    bottom: 12px;
-    height: min(72vh, 620px);
+    height: var(--chatbot-vh, 100dvh);
+    max-height: none;
+    border-radius: 0;
+    border: none;
+    transform-origin: center;
+  }
+
+  .chatbot-input-row {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  /* 16px evita el zoom automático de iOS al enfocar el campo. */
+  .chatbot-input-row input {
+    font-size: 16px;
+  }
+
+  /* El chat ya trae su botón de cerrar en la cabecera. */
+  body.chatbot-is-open .chatbot-launcher {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  body.chatbot-is-open {
+    overflow: hidden;
   }
 
   .chatbot-launcher {
@@ -2413,4 +2509,50 @@ html::-webkit-scrollbar-thumb:hover,
 /* Las miniaturas: barra aún más fina y con aire respecto a las imágenes. */
 .pgallery-thumbs {
   padding-bottom: 8px;
+}
+
+
+/* ===================== Rendimiento ===================== */
+/* Animaciones infinitas en pausa cuando el elemento está fuera de pantalla
+   (clase puesta por un IntersectionObserver en BaseLayout). */
+.anim-paused,
+.anim-paused * {
+  animation-play-state: paused !important;
+}
+
+/* iOS (Safari, Chrome y cualquier navegador iOS usan WebKit): backdrop-filter
+   y blur() grandes son lo más caro de componer en la GPU del iPhone y pueden
+   hacer que iOS descarte capas (secciones que "desaparecen"). Aquí se
+   sustituyen por fondos algo más opacos: sobre este fondo oscuro el resultado
+   visual es prácticamente idéntico. Escritorio y Android no cambian. */
+@supports (-webkit-touch-callout: none) {
+  .glass-panel,
+  .status-pill,
+  .nav-links,
+  .pgallery-nav,
+  .pgallery-close,
+  .chatbot-window,
+  .site-header.scrolled {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.065);
+  }
+
+  .site-header.scrolled {
+    /* Antes 72% + blur(10px). Sin blur, 90% mantiene el mismo aire de "cristal
+       oscuro" sin que se lea el contenido que pasa por detrás. */
+    background: rgba(9, 9, 11, 0.9);
+  }
+
+  .project-card::before,
+  .project-hero-media::before {
+    filter: none;
+  }
+
+  .project-card::before {
+    inset: -12px;
+  }
 }

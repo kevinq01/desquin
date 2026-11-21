@@ -7,11 +7,13 @@ interface Props {
   statusLabel: string;
   image?: ImageMetadata;
   imageAlt?: string;
+  /** Tarjeta visible al cargar: sin lazy y con prioridad alta en la primera. */
+  eager?: boolean;
 }
 
-const { name, statusLabel, image, imageAlt } = Astro.props;
+const { name, statusLabel, image, imageAlt, eager = false } = Astro.props;
 ---
 <span class="status-pill">{statusLabel}</span>
 {image
-  ? <Image src={image} alt={imageAlt ?? name} widths={[600, 900, 1200, 1600]} sizes="(max-width: 900px) 100vw, 600px" quality={90} loading="lazy" />
+  ? <Image src={image} alt={imageAlt ?? name} widths={[600, 900, 1200, 1600]} sizes="(max-width: 900px) 100vw, 600px" quality={90} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} />
   : <div class="project-placeholder" role="img" aria-label={`Vista previa de ${name} próxima`}><span>{name}</span><em>Vista previa próximamente</em></div>}

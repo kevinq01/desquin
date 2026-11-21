@@ -97,17 +97,16 @@ const orgSchema = {
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImage} />
 
-  <!-- Fuentes -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://api.fontshare.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" rel="stylesheet" />
+  <!-- Fuentes: alojadas en /fonts (ver @font-face en global.css). Se precargan
+       las dos que pintan el primer texto visible (cuerpo y títulos). -->
+  <link rel="preload" href="/fonts/plus-jakarta-sans-fdb05bf0.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/general-sans-700.woff2" as="font" type="font/woff2" crossorigin />
 
   <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
   {jsonLd.map((schema) => (
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   ))}
+  <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
   <Header />
@@ -119,27 +118,40 @@ const orgSchema = {
   <SpaceChatbot />
 
   <script>
-    // Fondo de estrellas — respeta prefers-reduced-motion y no bloquea el render inicial
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const starContainer = document.createElement('div');
-      starContainer.className = 'stars';
-      document.body.prepend(starContainer);
-
-      const density = Math.min(160, Math.max(70, Math.round(window.innerWidth / 10)));
-      const frag = document.createDocumentFragment();
-      for (let i = 0; i < density; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        const size = Math.random() * 2 + 1;
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.animationDuration = `${Math.random() * 4 + 2}s`;
-        frag.appendChild(star);
+    // Fondo de estrellas: estáticas y de brillo variable (unas más tenues que
+    // otras). Sin parpadeo: son 3 capas con box-shadow (una por tamaño) en vez
+    // de 70-160 nodos animados, así el navegador no recompone nada al hacer
+    // scroll y no hay animación continua que consuma GPU/batería.
+    const starContainer = document.createElement('div');
+    starContainer.className = 'stars';
+    const drawStars = () => {
+      // screen.* evita huecos cuando la barra de iOS cambia innerHeight.
+      const w = Math.max(window.innerWidth, window.screen.width || 0);
+      const h = Math.max(window.innerHeight, window.screen.height || 0);
+      const count = Math.min(160, Math.max(70, Math.round(window.innerWidth / 10)));
+      const layers: string[][] = [[], [], []];
+      for (let i = 0; i < count; i++) {
+        const x = Math.round(Math.random() * w);
+        const y = Math.round(Math.random() * h);
+        const alpha = (0.25 + Math.random() * 0.75).toFixed(2);
+        // Más estrellas pequeñas que grandes (1px, 2px, 3px).
+        const r = Math.random();
+        layers[r < 0.55 ? 0 : r < 0.9 ? 1 : 2].push(`${x}px ${y}px rgba(255,255,255,${alpha})`);
       }
-      starContainer.appendChild(frag);
-    }
+      starContainer.replaceChildren(...layers.map((shadows, n) => {
+        const el = document.createElement('div');
+        el.className = `star-layer star-layer-${n + 1}`;
+        el.style.boxShadow = shadows.join(',');
+        return el;
+      }));
+    };
+    drawStars();
+    document.body.prepend(starContainer);
+    // Solo se regenera si cambia el ANCHO (rotación); no por la barra de iOS.
+    let lastW = window.innerWidth;
+    window.addEventListener('resize', () => {
+      if (window.innerWidth !== lastW) { lastW = window.innerWidth; drawStars(); }
+    }, { passive: true });
   </script>
 
   <script>
@@ -158,16 +170,50 @@ const orgSchema = {
   </script>
 
   <script>
-    const els = document.querySelectorAll('.reveal');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15 });
-    els.forEach((el) => io.observe(el));
+    // Revela los .reveal al entrar en pantalla, sin dejar ninguno invisible:
+    //  - los que ya pasaron por encima (scroll rápido/inercia en iOS: el
+    //    observer entrega solo el último estado y el elemento ya está arriba)
+    //    se revelan igual;
+    //  - sin IntersectionObserver, o si no responde, todo se revela;
+    //  - al volver con el botón "atrás" (bfcache) se vuelve a comprobar.
+    const els = [...document.querySelectorAll('.reveal')];
+    const show = (el) => el.classList.add('is-visible');
+    const showAll = () => els.forEach(show);
+    if (!('IntersectionObserver' in window)) {
+      showAll();
+    } else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+            show(entry.target);
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+      els.forEach((el) => io.observe(el));
+      // Red de seguridad: revisa por geometría lo que el observer no reveló.
+      const sweep = () => {
+        const vh = window.innerHeight;
+        els.forEach((el) => {
+          if (!el.classList.contains('is-visible') && el.getBoundingClientRect().top < vh) show(el);
+        });
+      };
+      let sweepTimer: ReturnType<typeof setTimeout>;
+      window.addEventListener('scroll', () => { clearTimeout(sweepTimer); sweepTimer = setTimeout(sweep, 150); }, { passive: true });
+      window.addEventListener('pageshow', sweep);
+      setTimeout(sweep, 1200);
+    }
+  </script>
+
+  <script>
+    // Pausa las animaciones infinitas de lo que no se ve (marquee, astronauta,
+    // acentos): sin trabajo de animación fuera de pantalla.
+    if ('IntersectionObserver' in window) {
+      const pauser = new IntersectionObserver((entries) => {
+        entries.forEach((e) => e.target.classList.toggle('anim-paused', !e.isIntersecting));
+      }, { rootMargin: '100px' });
+      document.querySelectorAll('.tech-marquee-track, .astronaut-frame, .space-accent').forEach((el) => pauser.observe(el));
+    }
   </script>
 </body>
 </html>

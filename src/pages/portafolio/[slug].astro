@@ -7,6 +7,7 @@ import { projectGallery } from '../../lib/project-images';
 import { SHOW_LIVE_LINKS } from '../../lib/site';
 import DemoAccess from '../../components/DemoAccess.astro';
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 
 export async function getStaticPaths() {
   const proyectos = await getCollection('proyectos');
@@ -25,7 +26,11 @@ const waHref = `https://wa.me/573046738074?text=${encodeURIComponent(whatsappMes
 const { seoTitle, faq, status } = entry.data;
 const pageUrl = `https://desquin.com/portafolio/${entry.id}`;
 const description = excerpt.length > 160 ? `${excerpt.slice(0, 157)}...` : excerpt;
-const cover = gallery[0]?.src;
+// Versión optimizada (WebP 1200px) para el JSON-LD: usar cover.src apuntaba al PNG
+// original (hasta 2,3 MB) y obligaba a publicarlo en el build.
+const cover = gallery[0]?.src
+  ? await getImage({ src: gallery[0].src, width: Math.min(gallery[0].src.width, 1200), format: 'webp', quality: 85 })
+  : undefined;
 
 // Datos estructurados: SoftwareApplication con oferta (disponible para la venta)
 // y FAQPage cuando el proyecto declara preguntas frecuentes.

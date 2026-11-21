@@ -90,39 +90,37 @@ const breadcrumbSchema = {
         <div class="container" style="position:relative;">
             <SpaceAccent variant="planet" class="space-accent-page" />
             <nav class="breadcrumb" aria-label="Ruta de navegación">
-                <a href="/">Inicio</a><span>/</span>
+                <a href="/">Inicio</a>
+                <span>/</span>
                 <span>Servicios</span>
             </nav>
             <div class="section-head">
                 <span class="eyebrow">Servicios</span>
                 <h1>Desarrollo de software a la medida</h1>
                 <p class="lead">
-                    Cuatro frentes, un solo equipo: desde la primera línea de
-                    código hasta el servidor donde vive tu sistema. Sin paquetes
-                    cerrados — cada proyecto se cotiza según lo que realmente
-                    necesitas.
+                    Desde la primera línea de código hasta el servidor donde
+                    vive tu sistema. Sin paquetes cerrados — cada proyecto se
+                    cotiza según lo que realmente necesitas.
                 </p>
             </div>
 
             <h2 class="sr-only">Catálogo de servicios</h2>
             <div class="grid-2">
-                {
-                    servicios.map((s, i) => (
-                        <div
-                            class="glass-panel service-card reveal"
-                            style={`transition-delay:${i * 80}ms`}
-                        >
-                            <span class="index">0{i + 1}</span>
-                            <h3>{s.name}</h3>
-                            <p>{s.desc}</p>
-                            <ul>
-                                {s.items.map((item) => (
-                                    <li>{item}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))
-                }
+                {servicios.map((s, i) => (
+                    <div
+                        class="glass-panel service-card reveal"
+                        style={`transition-delay:${i * 80}ms`}
+                    >
+                        <span class="index">0{i + 1}</span>
+                        <h3>{s.name}</h3>
+                        <p>{s.desc}</p>
+                        <ul>
+                            {s.items.map((item) => (
+                                <li>{item}</li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
 
             <div class="cta-banner glass-panel reveal" style="margin-top:56px;">
