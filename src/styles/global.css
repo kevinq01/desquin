@@ -1108,13 +1108,13 @@ p {
 /* ===================== CARDS: services & projects ===================== */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 28px;
 }
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
 
@@ -1122,13 +1122,13 @@ p {
 
   .grid-2,
   .grid-3 {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (min-width: 721px) and (max-width: 980px) {
   .grid-3 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1197,6 +1197,7 @@ p {
 
 .project-card {
   position: relative;
+  min-width: 0;
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -1226,6 +1227,12 @@ p {
 
 .project-media {
   aspect-ratio: 16/10;
+  position: relative;
+  min-width: 0;
+  /* La imagen NO aporta tamaño a la caja (ver img absoluta abajo): en WebKit
+     una <img> de 1024px dentro de una caja con aspect-ratio ensanchaba la
+     columna más que la pantalla y la imagen se veía "ampliada". */
+  contain: size;
   background: #000;
   overflow: hidden;
   border-radius: var(--radius);
@@ -1264,8 +1271,14 @@ p {
 .project-hero-media img {
   width: 100%;
   height: 100%;
+  max-width: 100%;
   object-fit: cover;
   display: block;
+}
+
+.project-media img {
+  position: absolute;
+  inset: 0;
 }
 
 .project-media::after {
@@ -2303,6 +2316,7 @@ body.chatbot-is-open .wa-float {
 
 .pgallery-slide {
   flex: 0 0 100%;
+  min-width: 0;
   scroll-snap-align: start;
   margin: 0;
   position: relative;
@@ -2310,7 +2324,10 @@ body.chatbot-is-open .wa-float {
 
 .pgallery-zoom {
   display: block;
+  position: relative;
   width: 100%;
+  min-width: 0;
+  contain: size;
   aspect-ratio: 16/10;
   padding: 0;
   border: 0;
@@ -2319,8 +2336,11 @@ body.chatbot-is-open .wa-float {
 }
 
 .pgallery-zoom img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  max-width: 100%;
   object-fit: contain;
   display: block;
 }
@@ -2539,6 +2559,12 @@ html::-webkit-scrollbar-thumb:hover,
 
   .glass-panel {
     background: rgba(255, 255, 255, 0.065);
+  }
+
+  /* Sin blur el panel translúcido deja ver la página detrás; el chat necesita
+     un fondo sólido (esta regla debe ir después de .glass-panel). */
+  .chatbot-window.glass-panel {
+    background: rgb(8, 6, 20);
   }
 
   .site-header.scrolled {
